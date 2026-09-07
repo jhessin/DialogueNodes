@@ -1,10 +1,12 @@
 @tool
 extends GraphEdit
 
-
 signal modified
 signal characters_updated(character_list: Array[Character])
 signal run_requested(start_node_idx: int)
+
+const CUSTOM_NODE_ID_OFFSET := 1000
+const _duplicate_offset := Vector2(20, 20)
 
 @export var NodeScenes: Array[PackedScene] = [
 	preload('res://addons/dialogue_nodes/nodes/StartNode.tscn'),
@@ -15,16 +17,13 @@ signal run_requested(start_node_idx: int)
 	preload('res://addons/dialogue_nodes/nodes/ConditionNode.tscn'),
 	preload('res://addons/dialogue_nodes/nodes/NestNode.tscn'),
 	preload('res://addons/dialogue_nodes/nodes/ForkNode.tscn'),
-	preload('res://addons/dialogue_nodes/nodes/GraphFrame.tscn')
+	preload('res://addons/dialogue_nodes/nodes/GraphFrame.tscn'),
 ]
 @export var detach_icon: Texture2D = preload('res://addons/dialogue_nodes/icons/ExternalLink.svg')
 
-@onready var popup_menu := $PopupMenu
-
-const _duplicate_offset := Vector2(20, 20)
-
 var undo_redo: EditorUndoRedoManager
 var starts: Array[String] = []
+var custom_node_ids: Dictionary = { }
 var cursor_pos := Vector2.ZERO
 var selected_nodes := []
 var request_node := ''
@@ -34,13 +33,17 @@ var last_character_list: Array[Character] = []
 var editor_settings: EditorSettings
 var base_color: Color
 
+@onready var popup_menu := $PopupMenu
+
+
 func _ready() -> void:
 	init_add_menu(popup_menu)
-	
-	if not Engine.is_editor_hint(): return
+
+	if not Engine.is_editor_hint():
+		return
 	editor_settings = EditorInterface.get_editor_settings()
 	editor_settings.settings_changed.connect(update_slots_color)
-	
+
 	if ProjectSettings.has_setting('dialogue_nodes/graph_zoom_max'):
 		_on_settings_changed()
 		ProjectSettings.settings_changed.connect(_on_settings_changed)
@@ -54,12 +57,12 @@ func _input(_event) -> void:
 
 func get_data() -> DialogueData:
 	var data := DialogueData.new()
-	
+
 	# get start nodes and their trees
 	for start in starts:
 		var start_node := get_node(NodePath(start))
 		data = start_node.tree_to_data(self, data)
-	
+
 	# get stray nodes
 	data.strays.clear()
 	for node in get_children():
@@ -67,7 +70,7 @@ func get_data() -> DialogueData:
 			data.strays.append(node.name)
 			data.nodes[node.name] = node._to_dict(self)
 			data.nodes[node.name]['offset'] = node.position_offset
-	
+
 	return data
 
 
@@ -79,7 +82,7 @@ func load_data(data: DialogueData) -> void:
 			node.queue_free()
 	request_node = ''
 	request_port = -1
-	
+
 	# add start nodes and their trees
 	for node_name in data.starts.values():
 		var offset: Vector2 = data.nodes[node_name]['offset']
@@ -87,7 +90,7 @@ func load_data(data: DialogueData) -> void:
 		start_node.data_to_tree(self, data)
 		request_node = ''
 		request_port = -1
-	
+
 	# add strays
 	var _start_node = add_node(0)
 	for node_name in data.strays:
@@ -99,9 +102,9 @@ func load_data(data: DialogueData) -> void:
 	_start_node.queue_free()
 	request_node = ''
 	request_port = -1
-	
+
 	update_slots_color()
-	
+
 	# call after loading hooks for nodes
 	for node in get_children():
 		if node.has_method('_after_loaded'):
@@ -111,7 +114,8 @@ func load_data(data: DialogueData) -> void:
 func init_add_menu(add_menu: PopupMenu) -> void:
 	# clear if already existing items
 	add_menu.clear()
-	
+	custom_node_ids.clear()
+
 	# add entries for nodes in the nodes list
 	for i in range(NodeScenes.size()):
 		var scene_instance := NodeScenes[i].instantiate()
@@ -119,48 +123,96 @@ func init_add_menu(add_menu: PopupMenu) -> void:
 		scene_instance.queue_free()
 		add_menu.add_item(scene_name, i)
 
+	add_menu.add_separator('Custom Nodes')
+
+	# add entries for registered custome nodes
+	if not Engine.has_singleton('DialogueNodes'):
+		return
+
+	var dialogue_nodes: DialogueNodes = Engine.get_singleton('DialogueNodes')
+	var registered_ids := dialogue_nodes.get_registered_node_ids()
+
+	for i in range(registered_ids.size()):
+		var node_id: StringName = registered_ids[i]
+		var scene: PackedScene = dialogue_nodes.get_node_scene(node_id)
+
+		if scene == null:
+			continue
+
+		var scene_instance := scene.instantiate()
+		var scene_name := scene_instance.name
+		scene_instance.queue_free()
+
+		var menu_id := CUSTOM_NODE_ID_OFFSET + i
+		custom_node_ids[menu_id] = node_id
+
+		add_menu.add_item(scene_name, menu_id)
+
 
 func add_node(id: int, node_name := '', offset := cursor_pos) -> GraphElement:
 	deselect_all_nodes()
-	
+
 	# create new node
-	var new_node := NodeScenes[id].instantiate()
+	var new_node: GraphElement
+
+	if id >= CUSTOM_NODE_ID_OFFSET:
+		if not custom_node_ids.has(id):
+			push_error('DialogueNodes: Unknown custom node ID: %d' % id)
+			return null
+
+		var custom_id: StringName = custom_node_ids[id]
+		var dialogue_nodes: DialogueNodes = Engine.get_singleton('DialogueNodes')
+		var scene: PackedScene = dialogue_nodes.get_node_scene(custom_id)
+
+		if scene == null:
+			push_error('DialogueNodes: No scene registered for "%s".' % custom_id)
+			return null
+
+		new_node = scene.instantiate()
+	else:
+		new_node = NodeScenes[id].instantiate()
+
 	new_node.position_offset = offset
 	new_node.undo_redo = undo_redo
 	new_node.selected = true
 	selected_nodes.append(new_node)
-	
+
 	# set nodeId and add to graph
-	new_node.name = (str(id)+'_1') if node_name == '' else node_name
+	new_node.name = (str(id) + '_1') if node_name == '' else node_name
 	add_child(new_node, true)
 	new_node.title += ' #' + new_node.name.split('_')[1]
-	
+
 	# connect signals
 	connect_node_signals(new_node)
-	
+
 	# connect to node if requested
 	if request_port > -1 and new_node.is_slot_enabled_left(0):
 		var prev_connection := get_connections(request_node, request_port)
 		if prev_connection.size() > 0:
-			disconnect_node(request_node, request_port, prev_connection[0]['to_node'], prev_connection[0]['to_port'])
+			disconnect_node(
+				request_node,
+				request_port,
+				prev_connection[0]['to_node'],
+				prev_connection[0]['to_port'],
+			)
 		connect_node(request_node, request_port, new_node.name, 0)
-	
+
 	match id:
 		0: # start node
 			add_to_starts(new_node.name)
 			new_node.set_ID('START' + new_node.name.split('_')[1])
 		1: # dialogue node
 			new_node._on_characters_updated(last_character_list)
-	
+
 	return new_node
 
 
 func connect_node_signals(node: GraphElement) -> void:
 	var id := int(node.name.split('_')[0])
-	
+
 	node.dragged.connect(_on_node_dragged.bind(node))
 	node.modified.connect(_on_modified)
-	
+
 	match id:
 		0: # start node
 			node.run_requested.connect(_on_run_requested.bind(node))
@@ -175,10 +227,10 @@ func connect_node_signals(node: GraphElement) -> void:
 
 func disconnect_node_signals(node: GraphElement) -> void:
 	var id := int(node.name.split('_')[0])
-	
+
 	node.dragged.disconnect(_on_node_dragged.bind(node))
 	node.modified.disconnect(_on_modified)
-	
+
 	match id:
 		0: # start node
 			node.run_requested.disconnect(_on_run_requested.bind(node))
@@ -226,70 +278,77 @@ func remove_from_starts(node_name: String) -> void:
 
 func attach_node_to_frame(element: StringName, frame: StringName) -> void:
 	attach_graph_element_to_frame(element, frame)
-	
+
 	var frame_node: GraphFrame = get_node(NodePath(frame))
 	frame_node.attach_node(element)
-	
+
 	var node: GraphElement = get_node(NodePath(element))
-	if not is_instance_valid(node): return
-	elif node.get_titlebar_hbox().has_node('DetachButton'): return
+	if not is_instance_valid(node):
+		return
+	elif node.get_titlebar_hbox().has_node('DetachButton'):
+		return
 	var detach_button := Button.new()
 	detach_button.icon = detach_icon
 	detach_button.name = 'DetachButton'
 	detach_button.flat = true
 	node.get_titlebar_hbox().add_child(detach_button, true)
-	detach_button.pressed.connect(
-		_on_graph_elements_unlinked_to_frame_request.bind(element, frame)
-	)
+	detach_button.pressed.connect(_on_graph_elements_unlinked_to_frame_request.bind(element, frame))
 
 
 func detach_node_from_frame(element: StringName, frame: StringName) -> void:
 	detach_graph_element_from_frame(element)
-	
+
 	var frame_node: GraphFrame = get_node(NodePath(frame))
-	if not frame_node.attached_nodes.has(element): return
+	if not frame_node.attached_nodes.has(element):
+		return
 	frame_node.detach_node(element)
-	
+
 	var node: GraphElement = get_node(NodePath(element))
-	if not is_instance_valid(node): return
+	if not is_instance_valid(node):
+		return
 	var detach_button: Button = node.get_titlebar_hbox().get_node('DetachButton')
 	detach_button.pressed.disconnect(_on_graph_elements_unlinked_to_frame_request)
 	detach_button.queue_free()
 
 
 func update_slots_color(nodes: Array = get_children()) -> void:
-	if not editor_settings: return
-	
+	if not editor_settings:
+		return
+
 	const light_color := Color.WHITE
 	const dark_color := Color.BLACK
 	base_color = editor_settings.get_setting('interface/theme/base_color')
 	base_color = light_color if base_color.v < 0.5 else dark_color
-	
+
 	for node in nodes:
-		if not node is GraphNode: continue
-		
+		if not node is GraphNode:
+			continue
+
 		for i in range(node.get_child_count()):
 			var enabled_left: bool = node.is_slot_enabled_left(i)
 			var enabled_right: bool = node.is_slot_enabled_right(i)
 			var color_left: Color = node.get_slot_color_left(i)
-			if color_left.is_equal_approx(light_color) or color_left.is_equal_approx(dark_color): color_left = base_color
+			if color_left.is_equal_approx(light_color) or color_left.is_equal_approx(dark_color):
+				color_left = base_color
 			var color_right: Color = node.get_slot_color_right(i)
-			if color_right.is_equal_approx(light_color) or color_right.is_equal_approx(dark_color): color_right = base_color
+			if color_right.is_equal_approx(light_color) or color_right.is_equal_approx(dark_color):
+				color_right = base_color
 			node.set_slot(i, enabled_left, 0, color_left, enabled_right, 0, color_right)
-		
-		if 'base_color' in node: node.base_color = base_color
+
+		if 'base_color' in node:
+			node.base_color = base_color
 
 
 func _on_add_menu_pressed(id: int) -> void:
 	if not undo_redo:
 		add_node(id)
 		return
-	
+
 	_on_modified()
-	
+
 	var prev_connection := get_connections(request_node, request_port)
 	var new_node: GraphElement = add_node(id)
-	
+
 	undo_redo.create_action('Add graph node')
 	undo_redo.add_do_method(self, 'add_child', new_node)
 	if id == 0:
@@ -302,10 +361,31 @@ func _on_add_menu_pressed(id: int) -> void:
 	undo_redo.add_undo_method(self, '_on_modified')
 	if request_port > -1:
 		if prev_connection.size() > 0:
-			undo_redo.add_do_method(self, 'disconnect_node', request_node, request_port, prev_connection[0]['to_node'], prev_connection[0]['to_port'])
-			undo_redo.add_undo_method(self, 'connect_node', request_node, request_port, prev_connection[0]['to_node'], prev_connection[0]['to_port'])
+			undo_redo.add_do_method(
+				self,
+				'disconnect_node',
+				request_node,
+				request_port,
+				prev_connection[0]['to_node'],
+				prev_connection[0]['to_port'],
+			)
+			undo_redo.add_undo_method(
+				self,
+				'connect_node',
+				request_node,
+				request_port,
+				prev_connection[0]['to_node'],
+				prev_connection[0]['to_port'],
+			)
 		undo_redo.add_do_method(self, 'connect_node', request_node, request_port, new_node.name, 0)
-		undo_redo.add_undo_method(self, 'disconnect_node', request_node, request_port, new_node.name, 0)
+		undo_redo.add_undo_method(
+			self,
+			'disconnect_node',
+			request_node,
+			request_port,
+			new_node.name,
+			0,
+		)
 	undo_redo.add_undo_method(self, 'disconnect_node_signals', new_node)
 	if id == 0:
 		undo_redo.add_undo_method(self, 'remove_from_starts', new_node.name)
@@ -314,10 +394,10 @@ func _on_add_menu_pressed(id: int) -> void:
 	undo_redo.add_undo_method(self, 'remove_child', new_node)
 	undo_redo.add_undo_method(self, 'deselect_all_nodes')
 	undo_redo.commit_action(false)
-	
+
 	request_node = ''
 	request_port = -1
-	
+
 	# set slot colors
 	update_slots_color([new_node])
 
@@ -336,9 +416,9 @@ func _on_node_dragged(from: Vector2, to: Vector2, node: GraphElement) -> void:
 	if not undo_redo:
 		cursor_pos = to
 		return
-	
+
 	_on_modified()
-	
+
 	undo_redo.create_action('Drag node: ' + str(from) + '->' + str(to))
 	undo_redo.add_do_property(node, 'position_offset', to)
 	undo_redo.add_do_property(self, 'cursor_pos', to)
@@ -350,11 +430,12 @@ func _on_node_dragged(from: Vector2, to: Vector2, node: GraphElement) -> void:
 
 
 func _on_duplicate_nodes_request() -> void:
-	if selected_nodes.size() == 0: return
-	
+	if selected_nodes.size() == 0:
+		return
+
 	var nodes_to_duplicate := selected_nodes.duplicate()
 	var duplicated_nodes := []
-	
+
 	for node in nodes_to_duplicate:
 		var clone_id := int(node.name.split('_')[0])
 		var clone_node: GraphElement = add_node(clone_id)
@@ -363,13 +444,13 @@ func _on_duplicate_nodes_request() -> void:
 		if clone_id == 1:
 			clone_node._on_characters_updated(last_character_list)
 		duplicated_nodes.append(clone_node)
-	
+
 	update_slots_color(duplicated_nodes)
 	_on_modified()
-	
+
 	if not undo_redo:
 		return
-	
+
 	# create undo_redo history
 	undo_redo.create_action('Duplicate node(s)')
 	selected_nodes = nodes_to_duplicate
@@ -390,7 +471,7 @@ func _on_duplicate_nodes_request() -> void:
 			undo_redo.add_undo_method(self, 'remove_from_starts', node.name)
 		undo_redo.add_undo_method(self, 'remove_child', node)
 		undo_redo.add_undo_method(self, 'deselect_all_nodes')
-	
+
 	undo_redo.commit_action(false)
 
 
@@ -401,30 +482,43 @@ func _on_delete_nodes_request(_nodes) -> void:
 			node.queue_free()
 			for connection in get_connection_list():
 				if connection['from_node'] == node.name or connection['to_node'] == node.name:
-					disconnect_node(connection['from_node'], connection['from_port'], connection['to_node'], connection['to_port'])
+					disconnect_node(
+						connection['from_node'],
+						connection['from_port'],
+						connection['to_node'],
+						connection['to_port'],
+					)
 		deselect_all_nodes()
 		return
-	
+
 	# detach nodes from frames (if any)
 	for node: GraphElement in selected_nodes:
 		var titlebar: HBoxContainer = node.get_titlebar_hbox()
-		if not titlebar.has_node('DetachButton'): continue
+		if not titlebar.has_node('DetachButton'):
+			continue
 		var detach_button: Button = titlebar.get_node('DetachButton')
 		if is_instance_valid(detach_button):
 			detach_button.pressed.emit()
-	
+
 	# delete nodes
 	undo_redo.create_action('Delete node(s)')
 	for node: GraphElement in selected_nodes:
 		var id := int(node.name.split('_')[0])
 		var connections := []
-		
+
 		for connection in get_connection_list():
 			if connection['from_node'] == node.name or connection['to_node'] == node.name:
 				connections.append(connection)
-		
+
 		for conn in connections:
-			undo_redo.add_do_method(self, 'disconnect_node', conn['from_node'], conn['from_port'], conn['to_node'], conn['to_port'])
+			undo_redo.add_do_method(
+				self,
+				'disconnect_node',
+				conn['from_node'],
+				conn['from_port'],
+				conn['to_node'],
+				conn['to_port'],
+			)
 		undo_redo.add_do_method(self, 'disconnect_node_signals', node)
 		if id == 0:
 			undo_redo.add_do_method(self, 'remove_from_starts', node.name)
@@ -442,44 +536,81 @@ func _on_delete_nodes_request(_nodes) -> void:
 				undo_redo.add_undo_method(self, 'attach_node_to_frame', element, node.name)
 		undo_redo.add_undo_method(self, 'connect_node_signals', node)
 		for conn in connections:
-			undo_redo.add_undo_method(self, 'connect_node', conn['from_node'], conn['from_port'], conn['to_node'], conn['to_port'])
+			undo_redo.add_undo_method(
+				self,
+				'connect_node',
+				conn['from_node'],
+				conn['from_port'],
+				conn['to_node'],
+				conn['to_port'],
+			)
 		undo_redo.add_undo_reference(node)
 	undo_redo.commit_action()
 	deselect_all_nodes()
 
 
-func _on_connection_to_empty(from_node: String, from_port: int, release_position :Vector2) -> void:
+func _on_connection_to_empty(from_node: String, from_port: int, release_position: Vector2) -> void:
 	request_node = from_node
 	request_port = from_port
 	show_add_menu(release_position)
 
 
-func _on_connection_request(from_node: String, from_port: int, to_node: String, to_port: int) -> void:
+func _on_connection_request(
+	from_node: String,
+	from_port: int,
+	to_node: String,
+	to_port: int,
+) -> void:
 	if not undo_redo:
 		var prev_connection := get_connections(from_node, from_port)
 		if prev_connection.size() > 0:
-			disconnect_node(from_node, from_port, prev_connection[0]['to_node'], prev_connection[0]['to_port'])
+			disconnect_node(
+				from_node,
+				from_port,
+				prev_connection[0]['to_node'],
+				prev_connection[0]['to_port'],
+			)
 		connect_node(from_node, from_port, to_node, to_port)
 		return
-	
+
 	# find previous connection (if any)
 	var prev_connection := get_connections(from_node, from_port)
-	
+
 	undo_redo.create_action('Connect nodes')
 	if prev_connection.size() > 0:
-		undo_redo.add_do_method(self, 'disconnect_node', from_node, from_port, prev_connection[0]['to_node'], prev_connection[0]['to_port'])
+		undo_redo.add_do_method(
+			self,
+			'disconnect_node',
+			from_node,
+			from_port,
+			prev_connection[0]['to_node'],
+			prev_connection[0]['to_port'],
+		)
 	undo_redo.add_do_method(self, 'connect_node', from_node, from_port, to_node, to_port)
 	undo_redo.add_do_method(self, '_on_modified')
 	undo_redo.add_undo_method(self, '_on_modified')
 	undo_redo.add_undo_method(self, 'disconnect_node', from_node, from_port, to_node, to_port)
 	if prev_connection.size() > 0:
-		undo_redo.add_undo_method(self, 'connect_node', from_node, from_port, prev_connection[0]['to_node'], prev_connection[0]['to_port'])
+		undo_redo.add_undo_method(
+			self,
+			'connect_node',
+			from_node,
+			from_port,
+			prev_connection[0]['to_node'],
+			prev_connection[0]['to_port'],
+		)
 	undo_redo.commit_action()
 
 
-func _on_disconnection_request(from_node: String, from_port: int, to_node: String, to_port: int) -> void:
-	if not undo_redo: return
-	
+func _on_disconnection_request(
+	from_node: String,
+	from_port: int,
+	to_node: String,
+	to_port: int,
+) -> void:
+	if not undo_redo:
+		return
+
 	undo_redo.create_action('Disconnect nodes')
 	undo_redo.add_do_method(self, 'disconnect_node', from_node, from_port, to_node, to_port)
 	undo_redo.add_do_method(self, '_on_modified')
@@ -489,39 +620,57 @@ func _on_disconnection_request(from_node: String, from_port: int, to_node: Strin
 
 
 func _on_disconnection_from_request(from_node: String, from_port: int) -> void:
-	if not undo_redo: return
-	
+	if not undo_redo:
+		return
+
 	var connections := get_connections(from_node, from_port)
-	
+
 	undo_redo.create_action('Disconnect nodes')
 	for conn in connections:
-		undo_redo.add_do_method(self, 'disconnect_node', from_node, from_port, conn['to_node'], conn['to_port'])
+		undo_redo.add_do_method(
+			self,
+			'disconnect_node',
+			from_node,
+			from_port,
+			conn['to_node'],
+			conn['to_port'],
+		)
 		undo_redo.add_do_method(self, '_on_modified')
 		undo_redo.add_undo_method(self, '_on_modified')
-		undo_redo.add_undo_method(self, 'connect_node', from_node, from_port, conn['to_node'], conn['to_port'])
+		undo_redo.add_undo_method(
+			self,
+			'connect_node',
+			from_node,
+			from_port,
+			conn['to_node'],
+			conn['to_port'],
+		)
 	undo_redo.commit_action()
 
 
 func _on_connection_shift_request(from_node: String, old_port: int, new_port: int) -> void:
 	var connections := get_connections(from_node, old_port)
-	
-	if connections.size() == 0: return
-	
+
+	if connections.size() == 0:
+		return
+
 	disconnect_node(from_node, old_port, connections[0]['to_node'], connections[0]['to_port'])
 	connect_node(from_node, new_port, connections[0]['to_node'], connections[0]['to_port'])
 
 
 func _on_characters_updated(character_list: Array[Character]) -> void:
-	if not is_inside_tree(): return
-	
+	if not is_inside_tree():
+		return
+
 	last_character_list = character_list
 	characters_updated.emit(character_list)
 
 
 func _on_run_requested(node: GraphElement) -> void:
 	var idx := starts.find(node.name)
-	if idx == -1: return
-	
+	if idx == -1:
+		return
+
 	run_requested.emit(idx)
 
 
@@ -534,7 +683,7 @@ func _on_graph_elements_linked_to_frame_request(elements: Array, frame: StringNa
 		for element_name: StringName in elements:
 			attach_node_to_frame(element_name, frame)
 		return
-	
+
 	undo_redo.create_action('Attach to frame')
 	for element_name: StringName in elements:
 		undo_redo.add_do_method(self, 'attach_node_to_frame', element_name, frame)
@@ -548,7 +697,7 @@ func _on_graph_elements_unlinked_to_frame_request(element: StringName, frame: St
 	if not undo_redo:
 		detach_node_from_frame(element, frame)
 		return
-	
+
 	undo_redo.create_action('Detach from frame')
 	undo_redo.add_do_method(self, 'detach_node_from_frame', element, frame)
 	undo_redo.add_do_method(self, '_on_modified')

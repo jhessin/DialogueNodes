@@ -49,6 +49,7 @@ func _enter_tree() -> void:
 	# add dialogue box and bubble nodes
 	add_custom_type('DialogueBox', 'Panel', DialogueBoxScene, DialogueBoxIcon)
 	add_custom_type('DialogueBubble', 'RichTextLabel', DialogueBubbleScene, DialogueBubbleIcon)
+	print_debug('Registered DialogueNodes: ', dialogue_nodes.get_registered_node_ids())
 
 	print_debug('Plugin Enabled')
 
