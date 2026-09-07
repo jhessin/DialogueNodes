@@ -71,6 +71,11 @@ func get_data() -> DialogueData:
 			data.nodes[node.name] = node._to_dict(self)
 			data.nodes[node.name]['offset'] = node.position_offset
 
+			var node_type := get_node_type(node)
+
+			if node_type.begins_with('custom'):
+				data.nodes[node.name]['type'] = node_type
+
 	return data
 
 
@@ -177,10 +182,16 @@ func add_node(id: int, node_name := '', offset := cursor_pos) -> GraphElement:
 	new_node.selected = true
 	selected_nodes.append(new_node)
 
-	# set nodeId and add to graph
+	# set node ID and add to graph
 	new_node.name = (str(id) + '_1') if node_name == '' else node_name
 	add_child(new_node, true)
 	new_node.title += ' #' + new_node.name.split('_')[1]
+
+	# Custom nodes need a stable type identifier that is independent
+	# of their editor menu ID.
+	if id >= CUSTOM_NODE_ID_OFFSET:
+		var custom_id: StringName = custom_node_ids[id]
+		new_node.set_meta('dialogue_nodes_type', 'custom:' + str(custom_id))
 
 	# connect signals
 	connect_node_signals(new_node)
@@ -205,6 +216,13 @@ func add_node(id: int, node_name := '', offset := cursor_pos) -> GraphElement:
 			new_node._on_characters_updated(last_character_list)
 
 	return new_node
+
+
+func get_node_type(node: GraphElement) -> String:
+	if node.has_meta('dialogue_nodes_type'):
+		return str(node.get_meta('dialogue_nodes_type'))
+
+	return node.name.split('_')[0]
 
 
 func connect_node_signals(node: GraphElement) -> void:
