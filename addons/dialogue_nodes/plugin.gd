@@ -1,48 +1,55 @@
 @tool
 extends EditorPlugin
 
-
+const DialogueNodesClass := preload("res://addons/dialogue_nodes/dialogue_nodes.gd")
 const EditorScene := preload('res://addons/dialogue_nodes/Editor.tscn')
 const DialogueBoxScene := preload('res://addons/dialogue_nodes/objects/DialogueBox.gd')
 const DialogueBubbleScene := preload('res://addons/dialogue_nodes/objects/DialogueBubble.gd')
 const DialogueBoxIcon := preload('res://addons/dialogue_nodes/icons/DialogueBox.svg')
 const DialogueBubbleIcon := preload('res://addons/dialogue_nodes/icons/DialogueBubble.svg')
 const SettingProps := [
-	{ 'name': 'dialogue_nodes/graph_zoom_max', 'type': TYPE_FLOAT, 'hint': PROPERTY_HINT_RANGE, 'hint_string': '0.1, 10.0, 0.01', 'default_value': 2.0 },
-	{ 'name': 'dialogue_nodes/graph_zoom_min', 'type': TYPE_FLOAT, 'hint': PROPERTY_HINT_RANGE, 'hint_string': '0.01, 1.0, 0.01', 'default_value': 0.2 },
+	{
+		'name': 'dialogue_nodes/graph_zoom_max',
+		'type': TYPE_FLOAT,
+		'hint': PROPERTY_HINT_RANGE,
+		'hint_string': '0.1, 10.0, 0.01',
+		'default_value': 2.0,
+	},
+	{
+		'name': 'dialogue_nodes/graph_zoom_min',
+		'type': TYPE_FLOAT,
+		'hint': PROPERTY_HINT_RANGE,
+		'hint_string': '0.01, 1.0, 0.01',
+		'default_value': 0.2,
+	},
 ]
 
 var editor: Control
+var dialogue_nodes: DialogueNodes
 
 
 func _enter_tree() -> void:
+	dialogue_nodes = DialogueNodesClass.new()
+	Engine.register_singleton("DialogueNodes", dialogue_nodes)
+
 	editor = EditorScene.instantiate()
-	
+
 	# set settings
 	for setting_prop in SettingProps:
 		initialize_setting(setting_prop)
-	
+
 	# add editor to main viewport
 	get_editor_interface().get_editor_main_screen().add_child(editor)
-	
+
 	# get undo redo manager
 	editor.undo_redo = get_undo_redo()
-	
+
 	_make_visible(false)
-	
+
 	# add dialogue box and bubble nodes
-	add_custom_type(
-		'DialogueBox',
-		'Panel',
-		DialogueBoxScene,
-		DialogueBoxIcon)
-	add_custom_type(
-		'DialogueBubble',
-		'RichTextLabel',
-		DialogueBubbleScene,
-		DialogueBubbleIcon
-	)
-	
+	add_custom_type('DialogueBox', 'Panel', DialogueBoxScene, DialogueBoxIcon)
+	add_custom_type('DialogueBubble', 'RichTextLabel', DialogueBubbleScene, DialogueBubbleIcon)
+
 	print_debug('Plugin Enabled')
 
 
@@ -50,10 +57,24 @@ func _exit_tree() -> void:
 	# remove from main viewport
 	if is_instance_valid(editor):
 		editor.queue_free()
-	
+
 	remove_custom_type('DialogueBox')
-	
+	remove_custom_type('DialogueBubble')
+
+	if Engine.has_singleton('DialogueNodes'):
+		Engine.unregister_singleton('DialogueNodes')
+
+	dialogue_nodes = null
+
 	print_debug('Plugin Disabled')
+
+
+func initialize_setting(setting_props: Dictionary) -> void:
+	if not ProjectSettings.has_setting(setting_props['name']):
+		ProjectSettings.set_setting(setting_props['name'], setting_props['default_value'])
+
+	ProjectSettings.add_property_info(setting_props)
+	ProjectSettings.set_initial_value(setting_props['name'], setting_props['default_value'])
 
 
 func _has_main_screen() -> bool:
@@ -85,11 +106,3 @@ func _edit(object) -> void:
 func _save_external_data() -> void:
 	if is_instance_valid(editor):
 		editor.files.save_all()
-
-
-func initialize_setting(setting_props: Dictionary) -> void:
-	if not ProjectSettings.has_setting(setting_props['name']):
-		ProjectSettings.set_setting(setting_props['name'], setting_props['default_value'])
-	
-	ProjectSettings.add_property_info(setting_props)
-	ProjectSettings.set_initial_value(setting_props['name'], setting_props['default_value'])
