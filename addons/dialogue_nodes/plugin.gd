@@ -1,6 +1,7 @@
 @tool
 extends EditorPlugin
 
+const GameEventNodeScene := preload("res://addons/dialogue_nodes/nodes/GameEventNode.tscn")
 const DialogueNodesClass := preload("res://addons/dialogue_nodes/dialogue_nodes.gd")
 const EditorScene := preload('res://addons/dialogue_nodes/Editor.tscn')
 const DialogueBoxScene := preload('res://addons/dialogue_nodes/objects/DialogueBox.gd')
@@ -32,7 +33,13 @@ func _enter_tree() -> void:
 	dialogue_nodes = DialogueNodesClass.new()
 	Engine.register_singleton("DialogueNodes", dialogue_nodes)
 
+	dialogue_nodes.register_node(&"game_event", GameEventNodeScene)
+
 	editor = EditorScene.instantiate()
+
+	var graph := editor.get_node_or_null("Graph")
+	if graph:
+		graph.refresh_node_menu()
 
 	# set settings
 	for setting_prop in SettingProps:

@@ -55,6 +55,10 @@ func _input(_event) -> void:
 		request_port = -1
 
 
+func refresh_node_menu() -> void:
+	init_add_menu(popup_menu)
+
+
 func get_data() -> DialogueData:
 	var data := DialogueData.new()
 
@@ -136,6 +140,7 @@ func init_add_menu(add_menu: PopupMenu) -> void:
 
 	var dialogue_nodes: DialogueNodes = Engine.get_singleton('DialogueNodes')
 	var registered_ids := dialogue_nodes.get_registered_node_ids()
+	print_debug('Graph custom nodes: ', registered_ids)
 
 	for i in range(registered_ids.size()):
 		var node_id: StringName = registered_ids[i]
@@ -154,13 +159,35 @@ func init_add_menu(add_menu: PopupMenu) -> void:
 		add_menu.add_item(scene_name, menu_id)
 
 
-func add_node(id: int, node_name := '', offset := cursor_pos) -> GraphElement:
+func add_node(id: Variant, node_name := '', offset := cursor_pos) -> GraphElement:
 	deselect_all_nodes()
 
 	# create new node
 	var new_node: GraphElement
 
-	if id >= CUSTOM_NODE_ID_OFFSET:
+	if id is String or id is StringName:
+		var custom_type := str(id)
+
+		if not custom_type.begins_with('custom:'):
+			push_error('DialogueNodes: Invalid custom node type "%s".' % custom_type)
+			return null
+
+		var custom_id := StringName(custom_type.trim_prefix('custom:'))
+
+		if not Engine.has_singleton('DialogueNodes'):
+			push_error('DialogueNodes: Registry singleton is not available.')
+			return null
+
+		var dialogue_nodes: DialogueNodes = Engine.get_singleton('DialogueNodes')
+		var scene: PackedScene = dialogue_nodes.get_node_scene(custom_id)
+
+		if scene == null:
+			push_error('DialogueNodes: No scene registered for "%s".' % custom_id)
+			return null
+
+		new_node = scene.instantiate()
+
+	elif id >= CUSTOM_NODE_ID_OFFSET:
 		if not custom_node_ids.has(id):
 			push_error('DialogueNodes: Unknown custom node ID: %d' % id)
 			return null
@@ -174,6 +201,7 @@ func add_node(id: int, node_name := '', offset := cursor_pos) -> GraphElement:
 			return null
 
 		new_node = scene.instantiate()
+
 	else:
 		new_node = NodeScenes[id].instantiate()
 

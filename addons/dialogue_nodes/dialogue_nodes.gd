@@ -39,4 +39,9 @@ func get_node_scene(id: StringName) -> PackedScene:
 
 
 func get_registered_node_ids() -> Array[StringName]:
-	return _registered_nodes.keys()
+	var ids: Array[StringName] = []
+
+	for id in _registered_nodes.keys():
+		ids.append(id)
+
+	return ids
