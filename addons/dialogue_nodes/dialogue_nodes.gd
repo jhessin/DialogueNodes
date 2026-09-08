@@ -60,6 +60,8 @@ func get_registered_node_ids() -> Array[StringName]:
 
 
 func register_processor(id: StringName, processor: Callable) -> bool:
+	# Processor signature:
+	# func(node_data: Dictionary, parser: DialogueParser) -> void
 	if id.is_empty():
 		push_error('DialogueNodes: Cannot register a processor with an empty ID.')
 		return false

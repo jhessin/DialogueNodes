@@ -6,30 +6,29 @@ signal modified
 var undo_redo: EditorUndoRedoManager
 var last_value := ''
 
-@onready var value := $EventValue
+@onready var next_dialogue_data: EditorResourcePicker = $NextDialogueData
 @onready var timer := $Timer
 
 
 func set_value(new_value: String) -> void:
-	if value.text != new_value:
-		value.text = new_value
-	last_value = new_value
+	pass
+	# if value.text != new_value:
+	# 	value.text = new_value
+	# last_value = new_value
 
 
 func _to_dict(graph: GraphEdit) -> Dictionary:
 	var dict := { }
-	var connections: Array = graph.get_connections(name)
-
-	dict['eventValue'] = value.text
-	dict['link'] = connections[0]['to_node'] if connections.size() > 0 else 'END'
-
+	# var connections: Array = graph.get_connections(name)
+	#
+	# dict['eventValue'] = value.text
+	# dict['link'] = connections[0]['to_node'] if connections.size() > 0 else 'END'
 	return dict
 
 
 func _from_dict(dict: Dictionary) -> Array[String]:
-	value.text = dict['eventValue']
-	last_value = value.text
-
+	# value.text = dict['eventValue']
+	# last_value = value.text
 	return [dict['link']]
 
 
@@ -43,7 +42,7 @@ func _on_timer_timeout() -> void:
 		return
 
 	undo_redo.create_action('Set event value')
-	undo_redo.add_do_method(self, 'set_value', value.text)
+	# undo_redo.add_do_method(self, 'set_value', value.text)
 	undo_redo.add_do_method(self, '_on_modified')
 	undo_redo.add_undo_method(self, '_on_modified')
 	undo_redo.add_undo_method(self, 'set_value', last_value)

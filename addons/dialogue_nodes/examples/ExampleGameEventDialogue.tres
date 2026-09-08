@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="DialogueData" format=3 uid="uid://bs8y5mkejh6fo"]
+
+[ext_resource type="Script" uid="uid://eit47g61t72a" path="res://addons/dialogue_nodes/objects/DialogueData.gd" id="1_70faf"]
+
+[resource]
+script = ExtResource("1_70faf")
+starts = {
+"START2": &"0_2"
+}
+nodes = {
+&"0_2": {
+"link": &"1_1",
+"offset": Vector2(-40, 160),
+"size": Vector2(180.00003, 86.00003),
+"start_id": "START2",
+"type": "0"
+},
+&"1000_1": {
+"eventValue": "",
+"link": "END",
+"offset": Vector2(640, 340),
+"type": "custom:game_event"
+},
+&"1_1": {
+"dialogue": "Test Dialogue
+",
+"offset": Vector2(240, 160),
+"options": {
+0: {
+"condition": Array[Dictionary]([]),
+"link": &"1000_1",
+"text": ""
+}
+},
+"size": Vector2(300, 240.00009),
+"speaker": "",
+"type": "1"
+}
+}

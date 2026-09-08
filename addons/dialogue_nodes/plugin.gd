@@ -1,7 +1,6 @@
 @tool
 extends EditorPlugin
 
-const GameEventNodeScene := preload("res://addons/dialogue_nodes/nodes/GameEventNode.tscn")
 const DialogueNodesClass := preload("res://addons/dialogue_nodes/dialogue_nodes.gd")
 const EditorScene := preload('res://addons/dialogue_nodes/Editor.tscn')
 const DialogueBoxScene := preload('res://addons/dialogue_nodes/objects/DialogueBox.gd')
@@ -31,8 +30,6 @@ var editor: Control
 func _enter_tree() -> void:
 	add_autoload_singleton('DialogueNodes', 'res://addons/dialogue_nodes/dialogue_nodes.gd')
 
-	DialogueNodes.register_node(&"game_event", GameEventNodeScene)
-	# DialogueNodesClass.register_node(&"game_event", GameEventNodeScene)
 	editor = EditorScene.instantiate()
 
 	var graph := editor.get_node_or_null("Graph")

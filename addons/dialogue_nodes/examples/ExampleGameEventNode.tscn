@@ -1,0 +1,28 @@
+[gd_scene format=3 uid="uid://c0qyvrpimtm0j"]
+
+[ext_resource type="Script" uid="uid://bpqbsp1penkd6" path="res://addons/dialogue_nodes/examples/ExampleGameEventNode.gd" id="1"]
+
+[node name="ExampleGameEventNode" type="GraphNode" unique_id=2054737004]
+offset_right = 240.0
+offset_bottom = 174.0
+title = "Next Dialogue"
+slot/0/left_enabled = true
+slot/0/left_type = 0
+slot/0/left_color = Color(1, 1, 1, 1)
+slot/0/left_icon = null
+slot/0/right_enabled = true
+slot/0/right_type = 0
+slot/0/right_color = Color(1, 1, 1, 1)
+slot/0/right_icon = null
+slot/0/draw_stylebox = true
+script = ExtResource("1")
+
+[node name="NextDialogueData" type="EditorResourcePicker" parent="." unique_id=961221085]
+layout_mode = 2
+base_type = "DialogueData"
+
+[node name="Timer" type="Timer" parent="." unique_id=1556028551]
+wait_time = 0.5
+one_shot = true
+
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

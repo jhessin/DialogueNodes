@@ -158,26 +158,28 @@ func add_node(id: Variant, node_name := '', offset := cursor_pos) -> GraphElemen
 	var new_node: GraphElement
 
 	if id is String or id is StringName:
-		var custom_type := str(id)
+		var serialized_type := str(id)
 
-		if not custom_type.begins_with('custom:'):
-			push_error('DialogueNodes: Invalid custom node type "%s".' % custom_type)
-			return null
+		if serialized_type.begins_with('custom:'):
+			var custom_id := StringName(serialized_type.trim_prefix('custom:'))
 
-		var custom_id := StringName(custom_type.trim_prefix('custom:'))
+			var scene: PackedScene = DialogueNodes.get_node_scene(custom_id)
 
-		if not Engine.has_singleton('DialogueNodes'):
-			push_error('DialogueNodes: Registry singleton is not available.')
-			return null
+			if scene == null:
+				push_error('DialogueNodes: No scene registered for "%s".' % custom_id)
+				return null
 
-		var scene: PackedScene = DialogueNodes.get_node_scene(custom_id)
+			new_node = scene.instantiate()
+			new_node.set_meta('dialogue_nodes_type', 'custom:' + str(custom_id))
 
-		if scene == null:
-			push_error('DialogueNodes: No scene registered for "%s".' % custom_id)
-			return null
+		else:
+			var builtin_id := int(serialized_type)
 
-		new_node = scene.instantiate()
-		new_node.set_meta('dialogue_nodes_type', 'custom:' + str(custom_id))
+			if builtin_id < 0 or builtin_id >= NodeScenes.size():
+				push_error('DialogueNodes: Invalid built-in node type "%s".' % serialized_type)
+				return null
+
+			new_node = NodeScenes[builtin_id].instantiate()
 
 	elif id >= CUSTOM_NODE_ID_OFFSET:
 		if not custom_node_ids.has(id):
