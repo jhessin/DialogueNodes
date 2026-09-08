@@ -26,15 +26,13 @@ const SettingProps := [
 ]
 
 var editor: Control
-var dialogue_nodes: DialogueNodes
 
 
 func _enter_tree() -> void:
-	dialogue_nodes = DialogueNodesClass.new()
-	Engine.register_singleton("DialogueNodes", dialogue_nodes)
+	add_autoload_singleton('DialogueNodes', 'res://addons/dialogue_nodes/dialogue_nodes.gd')
 
-	dialogue_nodes.register_node(&"game_event", GameEventNodeScene)
-
+	DialogueNodes.register_node(&"game_event", GameEventNodeScene)
+	# DialogueNodesClass.register_node(&"game_event", GameEventNodeScene)
 	editor = EditorScene.instantiate()
 
 	var graph := editor.get_node_or_null("Graph")
@@ -56,7 +54,7 @@ func _enter_tree() -> void:
 	# add dialogue box and bubble nodes
 	add_custom_type('DialogueBox', 'Panel', DialogueBoxScene, DialogueBoxIcon)
 	add_custom_type('DialogueBubble', 'RichTextLabel', DialogueBubbleScene, DialogueBubbleIcon)
-	print_debug('Registered DialogueNodes: ', dialogue_nodes.get_registered_node_ids())
+	print_debug('Registered DialogueNodes: ', DialogueNodes.get_registered_node_ids())
 
 	print_debug('Plugin Enabled')
 
@@ -72,7 +70,7 @@ func _exit_tree() -> void:
 	if Engine.has_singleton('DialogueNodes'):
 		Engine.unregister_singleton('DialogueNodes')
 
-	dialogue_nodes = null
+	remove_autoload_singleton('DialogueNodes')
 
 	print_debug('Plugin Disabled')
 

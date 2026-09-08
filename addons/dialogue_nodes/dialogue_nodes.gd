@@ -1,12 +1,11 @@
 @tool
-class_name DialogueNodes
-extends Object
+extends Node
 
 var _registered_nodes: Dictionary[StringName, PackedScene] = { }
 var _registered_processors: Dictionary[StringName, Callable] = { }
 
 
-func register_node(id: StringName, scene: PackedScene) -> bool:
+func register_node(id: StringName, scene: PackedScene, processor: Callable = Callable()) -> bool:
 	if id.is_empty():
 		push_error("DialogueNodes: Cannot register a node with an empty ID.")
 		return false
@@ -20,6 +19,7 @@ func register_node(id: StringName, scene: PackedScene) -> bool:
 		return false
 
 	_registered_nodes[id] = scene
+	register_processor(id, processor)
 	return true
 
 

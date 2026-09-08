@@ -135,16 +135,12 @@ func init_add_menu(add_menu: PopupMenu) -> void:
 	add_menu.add_separator('Custom Nodes')
 
 	# add entries for registered custome nodes
-	if not Engine.has_singleton('DialogueNodes'):
-		return
-
-	var dialogue_nodes: DialogueNodes = Engine.get_singleton('DialogueNodes')
-	var registered_ids := dialogue_nodes.get_registered_node_ids()
+	var registered_ids := DialogueNodes.get_registered_node_ids()
 	print_debug('Graph custom nodes: ', registered_ids)
 
 	for i in range(registered_ids.size()):
 		var node_id: StringName = registered_ids[i]
-		var scene: PackedScene = dialogue_nodes.get_node_scene(node_id)
+		var scene: PackedScene = DialogueNodes.get_node_scene(node_id)
 
 		if scene == null:
 			continue
