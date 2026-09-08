@@ -117,6 +117,11 @@ func is_running() -> bool:
 	return _running
 
 
+# A public reference to _proceed
+func proceed(node_name: String) -> void:
+	_proceed(node_name)
+
+
 # Proceeds the parser to the next node and runs its corresponding _process_* function.
 func _proceed(node_name: String) -> void:
 	if not _running:

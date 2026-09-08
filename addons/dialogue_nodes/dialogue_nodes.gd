@@ -5,7 +5,11 @@ var _registered_nodes: Dictionary[StringName, PackedScene] = { }
 var _registered_processors: Dictionary[StringName, Callable] = { }
 
 
-func register_node(id: StringName, scene: PackedScene, processor: Callable = Callable()) -> bool:
+func register_node(
+	id: StringName,
+	scene: PackedScene,
+	processor: Callable = Callable(self, '_process_default'),
+) -> bool:
 	if id.is_empty():
 		push_error("DialogueNodes: Cannot register a node with an empty ID.")
 		return false
@@ -60,15 +64,15 @@ func register_processor(id: StringName, processor: Callable) -> bool:
 		push_error('DialogueNodes: Cannot register a processor with an empty ID.')
 		return false
 
-	if not processor.is_valid():
-		push_error('DialogueNodes: Cannot register "%s% with an invalid processor.' % id)
-		return false
-
 	if _registered_processors.has(id):
 		push_error('DialogueNodes: processor "%s" is already registered.' % id)
 		return false
 
-	_registered_processors[id] = processor
+	if processor.is_valid():
+		_registered_processors[id] = processor
+	else:
+		_registered_processors[id] = Callable(self, '_process_default')
+
 	return true
 
 
@@ -95,3 +99,7 @@ func get_registered_processor_ids() -> Array[StringName]:
 		ids.append(id)
 
 	return ids
+
+
+func _process_default(node_data: Dictionary, parser: DialogueParser) -> void:
+	parser.proceed(str(node_data.get('link', 'END')))
