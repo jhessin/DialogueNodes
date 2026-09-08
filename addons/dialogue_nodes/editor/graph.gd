@@ -186,6 +186,7 @@ func add_node(id: Variant, node_name := '', offset := cursor_pos) -> GraphElemen
 			return null
 
 		new_node = scene.instantiate()
+		new_node.set_meta('dialogue_nodes_type', 'custom:' + str(custom_id))
 
 	elif id >= CUSTOM_NODE_ID_OFFSET:
 		if not custom_node_ids.has(id):
@@ -214,12 +215,6 @@ func add_node(id: Variant, node_name := '', offset := cursor_pos) -> GraphElemen
 	new_node.name = (str(id) + '_1') if node_name == '' else node_name
 	add_child(new_node, true)
 	new_node.title += ' #' + new_node.name.split('_')[1]
-
-	# Custom nodes need a stable type identifier that is independent
-	# of their editor menu ID.
-	if id >= CUSTOM_NODE_ID_OFFSET:
-		var custom_id: StringName = custom_node_ids[id]
-		new_node.set_meta('dialogue_nodes_type', 'custom:' + str(custom_id))
 
 	# connect signals
 	connect_node_signals(new_node)

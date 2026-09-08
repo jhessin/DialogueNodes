@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="DialogueData" format=3 uid="uid://bs8y5mkejh6fo"]
+
+[ext_resource type="Script" uid="uid://eit47g61t72a" path="res://addons/dialogue_nodes/objects/DialogueData.gd" id="1_70faf"]
+
+[resource]
+script = ExtResource("1_70faf")
+starts = {
+"START1": &"0_1"
+}
+nodes = {
+&"0_1": {
+"link": &"1_1",
+"offset": Vector2(97, 226),
+"size": Vector2(180, 86),
+"start_id": "START1"
+},
+&"1000_1": {
+"eventValue": "",
+"link": "END",
+"offset": Vector2(955, 219)
+},
+&"1_1": {
+"dialogue": "Testing
+",
+"offset": Vector2(520, 180),
+"options": {
+0: {
+"condition": Array[Dictionary]([]),
+"link": "END",
+"text": ""
+}
+},
+"size": Vector2(300, 240),
+"speaker": ""
+}
+}
+strays = Array[String](["1000_1"])
