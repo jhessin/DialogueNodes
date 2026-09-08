@@ -44,7 +44,11 @@ func _refresh_graph_menu() -> void:
 	if not Engine.is_editor_hint():
 		return
 
-	var main_screen := EditorInterface.get_editor_main_screen()
+	var editor_interface = Engine.get_singleton(&"EditorInterface")
+	if editor_interface == null:
+		return
+
+	var main_screen = editor_interface.get_editor_main_screen()
 	for graph in main_screen.find_children('*', 'GraphEdit', true, false):
 		if graph.has_method('refresh_node_menu'):
 			graph.refresh_node_menu()
