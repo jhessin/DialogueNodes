@@ -9,28 +9,30 @@ starts = {
 }
 nodes = {
 &"0_1": {
-"link": &"1000_1",
-"offset": Vector2(97, 226),
+"link": &"1_1",
+"offset": Vector2(100, 220),
 "size": Vector2(180, 86),
-"start_id": "START1"
+"start_id": "START1",
+"type": "0"
 },
 &"1000_1": {
-"eventValue": "aoeu",
-"link": &"1_1",
-"offset": Vector2(400, 220)
+"eventValue": "",
+"link": "END",
+"offset": Vector2(1081.091, 215.81818),
+"type": "custom:game_event"
 },
 &"1_1": {
-"dialogue": "Testing
-",
-"offset": Vector2(820, 160),
+"dialogue": "Testing",
+"offset": Vector2(440, 180),
 "options": {
 0: {
 "condition": Array[Dictionary]([]),
-"link": "END",
+"link": &"1000_1",
 "text": ""
 }
 },
 "size": Vector2(300, 240),
-"speaker": ""
+"speaker": "",
+"type": "1"
 }
 }

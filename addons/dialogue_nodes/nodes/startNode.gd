@@ -34,14 +34,15 @@ func tree_to_data(
 	# add data for current node
 	data.nodes[node.name] = node._to_dict(graph)
 	data.nodes[node.name]['offset'] = node.position_offset
+	data.nodes[node.name]['type'] = graph.get_node_type(node)
 
-	# Preserve the stable type identifier for custom DialogueNodes.
-	# This is intentionally separate from the numeric editor/menu ID.
-	if node.has_meta('dialogue_nodes_type'):
-		var node_type := str(node.get_meta('dialogue_nodes_type'))
-
-		if node_type.begins_with('custom:'):
-			data.nodes[node.name]['type'] = node_type
+	# # Preserve the stable type identifier for custom DialogueNodes.
+	# # This is intentionally separate from the numeric editor/menu ID.
+	# if node.has_meta('dialogue_nodes_type'):
+	# 	var node_type := str(node.get_meta('dialogue_nodes_type'))
+	#
+	# 	if node_type.begins_with('custom:'):
+	# 		data.nodes[node.name]['type'] = node_type
 
 	# add data for next nodes
 	for next_node in next_nodes:

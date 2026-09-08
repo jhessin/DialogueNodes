@@ -133,6 +133,9 @@ func _proceed(node_name: String) -> void:
 
 	var node_data: Dictionary = data.nodes[node_name]
 
+	print("DialogueParser node: ", node_name)
+	print("DialogueParser data: ", node_data)
+
 	if node_data.has('type'):
 		var node_type := str(node_data['type'])
 

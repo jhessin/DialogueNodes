@@ -74,11 +74,7 @@ func get_data() -> DialogueData:
 			data.strays.append(node.name)
 			data.nodes[node.name] = node._to_dict(self)
 			data.nodes[node.name]['offset'] = node.position_offset
-
-			var node_type := get_node_type(node)
-
-			if node_type.begins_with('custom'):
-				data.nodes[node.name]['type'] = node_type
+			data.nodes[node.name]['type'] = get_node_type(node)
 
 	return data
 
@@ -196,6 +192,7 @@ func add_node(id: Variant, node_name := '', offset := cursor_pos) -> GraphElemen
 			return null
 
 		new_node = scene.instantiate()
+		new_node.set_meta('dialogue_nodes_type', 'custom:' + str(custom_id))
 
 	else:
 		new_node = NodeScenes[id].instantiate()
@@ -476,6 +473,7 @@ func _on_duplicate_nodes_request() -> void:
 		var clone_node: GraphElement = add_node(clone_id)
 		clone_node._from_dict(node._to_dict(self))
 		clone_node.position_offset = node.position_offset + _duplicate_offset
+
 		if clone_id == 1:
 			clone_node._on_characters_updated(last_character_list)
 		duplicated_nodes.append(clone_node)
