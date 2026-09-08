@@ -9,7 +9,7 @@
 <img src='.screenshots/DN1.png' width='51%'/>
 <img src='.screenshots/DN2.png' width='48%'/>
 A plugin for creating and exporting dialogue trees from within the Godot Editor.
-Godot provides all the tools needed to create your own dialogue system, however, for most game developers, this task is tedious and complex. This is where Dialogue Nodes come into the picture. The plugin extends your Godot editor to allow for creating, testing and incorporating branching dialogues in your game.
+Godot provides all the tools needed to create your own dialogue system, however, for most game developers, this task is tedious and complex. This is where Dialogue Nodes comes into the picture. The plugin extends your Godot editor to allow for creating, testing and incorporating branching dialogues in your game.
 
 ####
 ## Installation
@@ -32,6 +32,19 @@ Check out [the installation instructions in the wiki](https://github.com/nagidev
 - Character portraits & colors
 - In-editor dialogue previewer
 - Localization through `tres` files
+
+####
+## Custom nodes
+Dialogue Nodes exposes a registration API for projects that need their own graph nodes. Custom nodes are registered by the host project rather than by the plugin, so the plugin itself does not need to know about application-specific examples or gameplay logic.
+
+The example project includes a non-trivial `Dialogue Jump` node. It uses an `EditorResourcePicker` to select another `DialogueData` resource, serializes the selected resource path into the dialogue data, and registers a processor that loads the selected dialogue when the node is reached. The example registration lives in `ExampleNodeRegistry.gd`, not in the plugin.
+
+This demonstrates the intended separation:
+
+1. The plugin provides `DialogueNodes.register_node()` and the graph editor discovers registered nodes.
+2. The example project registers its own node at runtime through its own autoload.
+3. The graph menu is refreshed after registration, so the node appears without the plugin importing or hard-coding the example.
+4. The custom node owns its editor UI and serialization, while the registered processor owns its runtime behavior.
 
 ####
 ## Learn more
