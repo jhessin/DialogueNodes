@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="DialogueData" format=3]
+
+[ext_resource type="Script" path="res://addons/dialogue_nodes/objects/DialogueData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+starts = {
+"START": &"0_1"
+}
+nodes = {
+&"0_1": {
+"link": &"1_1",
+"offset": Vector2(0, 0),
+"size": Vector2(172, 86),
+"start_id": "START"
+},
+&"1_1": {
+"dialogue": "This dialogue came from a different DialogueData resource.",
+"offset": Vector2(220, 0),
+"options": {
+0: {
+"condition": Array[Dictionary]([]),
+"link": "END",
+"text": ""
+}
+},
+"size": Vector2(300, 260),
+"speaker": "Example"
+}
+}
+strays = Array[String]([])
