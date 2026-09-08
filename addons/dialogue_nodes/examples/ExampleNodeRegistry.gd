@@ -2,7 +2,7 @@
 extends Node
 
 const NODE_ID: StringName = &"dialogue_jump"
-const NODE_SCENE := preload('res://addons/dialogue_nodes/examples/DialogueJumpNode.tscn')
+const NODE_SCENE_PATH := 'res://addons/dialogue_nodes/examples/DialogueJumpNode.tscn'
 
 var _registered := false
 
@@ -14,7 +14,7 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
-	if Engine.is_editor_hint() and is_instance_valid(DialogueNodes):
+	if is_instance_valid(DialogueNodes):
 		DialogueNodes.unregister_node(NODE_ID)
 
 
@@ -27,9 +27,17 @@ func _try_register() -> void:
 	if _registered or not is_instance_valid(DialogueNodes):
 		return
 
-	if DialogueNodes.register_node(NODE_ID, NODE_SCENE, _process_dialogue_jump):
-		_registered = true
-		_refresh_graph_menu()
+	if Engine.is_editor_hint():
+		var node_scene := load(NODE_SCENE_PATH) as PackedScene
+		if node_scene == null:
+			push_error('ExampleNodeRegistry: Failed to load %s' % NODE_SCENE_PATH)
+			return
+		if DialogueNodes.register_node(NODE_ID, node_scene, _process_dialogue_jump):
+			_registered = true
+			_refresh_graph_menu()
+		return
+
+	_registered = DialogueNodes.register_processor(NODE_ID, _process_dialogue_jump)
 
 
 func _refresh_graph_menu() -> void:
