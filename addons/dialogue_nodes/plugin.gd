@@ -67,9 +67,6 @@ func _exit_tree() -> void:
 	remove_custom_type('DialogueBox')
 	remove_custom_type('DialogueBubble')
 
-	if Engine.has_singleton('DialogueNodes'):
-		Engine.unregister_singleton('DialogueNodes')
-
 	remove_autoload_singleton('DialogueNodes')
 
 	print_debug('Plugin Disabled')

@@ -19,7 +19,10 @@ func register_node(id: StringName, scene: PackedScene, processor: Callable = Cal
 		return false
 
 	_registered_nodes[id] = scene
-	register_processor(id, processor)
+
+	if processor.is_valid():
+		register_processor(id, processor)
+
 	return true
 
 
@@ -28,6 +31,10 @@ func unregister_node(id: StringName) -> bool:
 		return false
 
 	_registered_nodes.erase(id)
+
+	if _registered_processors.has(id):
+		_registered_processors.erase(id)
+
 	return true
 
 
@@ -62,6 +69,14 @@ func register_processor(id: StringName, processor: Callable) -> bool:
 		return false
 
 	_registered_processors[id] = processor
+	return true
+
+
+func unregister_processor(id: StringName) -> bool:
+	if not _registered_processors.has(id):
+		return false
+
+	_registered_processors.erase(id)
 	return true
 
 

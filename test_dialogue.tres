@@ -9,20 +9,20 @@ starts = {
 }
 nodes = {
 &"0_1": {
-"link": &"1_1",
+"link": &"1000_1",
 "offset": Vector2(97, 226),
 "size": Vector2(180, 86),
 "start_id": "START1"
 },
 &"1000_1": {
-"eventValue": "",
-"link": "END",
-"offset": Vector2(955, 219)
+"eventValue": "aoeu",
+"link": &"1_1",
+"offset": Vector2(400, 220)
 },
 &"1_1": {
 "dialogue": "Testing
 ",
-"offset": Vector2(520, 180),
+"offset": Vector2(820, 160),
 "options": {
 0: {
 "condition": Array[Dictionary]([]),
@@ -34,4 +34,3 @@ nodes = {
 "speaker": ""
 }
 }
-strays = Array[String](["1000_1"])

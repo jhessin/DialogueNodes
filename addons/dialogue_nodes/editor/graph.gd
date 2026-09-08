@@ -174,8 +174,7 @@ func add_node(id: Variant, node_name := '', offset := cursor_pos) -> GraphElemen
 			push_error('DialogueNodes: Registry singleton is not available.')
 			return null
 
-		var dialogue_nodes: DialogueNodes = Engine.get_singleton('DialogueNodes')
-		var scene: PackedScene = dialogue_nodes.get_node_scene(custom_id)
+		var scene: PackedScene = DialogueNodes.get_node_scene(custom_id)
 
 		if scene == null:
 			push_error('DialogueNodes: No scene registered for "%s".' % custom_id)
@@ -190,8 +189,7 @@ func add_node(id: Variant, node_name := '', offset := cursor_pos) -> GraphElemen
 			return null
 
 		var custom_id: StringName = custom_node_ids[id]
-		var dialogue_nodes: DialogueNodes = Engine.get_singleton('DialogueNodes')
-		var scene: PackedScene = dialogue_nodes.get_node_scene(custom_id)
+		var scene: PackedScene = DialogueNodes.get_node_scene(custom_id)
 
 		if scene == null:
 			push_error('DialogueNodes: No scene registered for "%s".' % custom_id)
