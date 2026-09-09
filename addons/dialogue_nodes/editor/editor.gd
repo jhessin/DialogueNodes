@@ -54,6 +54,7 @@ func _process(_delta: float) -> void:
 
 	_character_signature = new_signature
 	graph.refresh_characters(character_list)
+	files.set_modified(files.cur_idx, true)
 
 
 func run_tree(start_node_idx: int) -> void:

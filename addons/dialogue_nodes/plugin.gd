@@ -89,9 +89,6 @@ func _handles(object) -> bool:
 
 func _edit(object) -> void:
 	if object is DialogueData and is_instance_valid(editor):
-		if object.characters == null:
-			object.characters = CharacterList.new()
-
 		editor.files.open_file(object.resource_path, object)
 
 
