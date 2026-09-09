@@ -85,7 +85,6 @@ func get_character_signature(character_list: CharacterList) -> Array:
 		if character != null:
 			signature.append(
 				[
-					character.get_instance_id(),
 					character.name,
 					character.color,
 					character.image.get_instance_id() if character.image else 0,

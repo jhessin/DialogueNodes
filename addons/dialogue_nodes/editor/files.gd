@@ -137,13 +137,12 @@ func save_file(idx := cur_idx) -> void:
 
 	# save to file
 	ResourceSaver.save(data, metadata['path'])
-	set_item_metadata(idx, metadata)
 
 	# toggle modified flag
 	set_modified(idx, false)
 
 	# load new resource so Godot knows to replace it
-	var _data := ResourceLoader.load(metadata['path'], '', ResourceLoader.CACHE_MODE_REPLACE)
+	ResourceLoader.load(metadata['path'], '', ResourceLoader.CACHE_MODE_REPLACE)
 
 	if editor._debug:
 		print('File saved: ', metadata['path'])
@@ -232,7 +231,7 @@ func switch_file(idx: int, ensure_path := '') -> void:
 	if ensure_path != '' and new_metadata['path'] != ensure_path:
 		return
 
-	# remove previous nodes if any and update character metadata
+	# remove previous nodes if any
 	if cur_idx > -1:
 		var cur_metadata := get_item_metadata(cur_idx)
 		if workspace.has_node('Graph'):
@@ -240,7 +239,6 @@ func switch_file(idx: int, ensure_path := '') -> void:
 				cur_metadata['graph']._on_add_menu_pressed
 			)
 			workspace.remove_child(cur_metadata['graph'])
-		set_item_metadata(cur_idx, cur_metadata)
 
 	# add new nodes
 	workspace.add_child(new_metadata['graph'])

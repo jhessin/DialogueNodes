@@ -2,7 +2,6 @@
 extends GraphNode
 
 signal modified
-signal character_list_requested(dialogue_node: GraphNode)
 signal disconnection_from_request(from_node: String, from_port: int)
 signal connection_shift_request(from_node: String, old_port: int, new_port: int)
 
