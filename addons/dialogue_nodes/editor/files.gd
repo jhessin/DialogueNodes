@@ -42,6 +42,7 @@ func create_entry(file_name: String, path: String, data: DialogueData) -> void:
 		var metadata := {
 			'display_name': file_name,
 			'path': path,
+			'data': data,
 			'characters': data.characters,
 			'variables': null,
 			'graph': null,

@@ -45,7 +45,8 @@ func _process(_delta: float) -> void:
 	if metadata.is_empty():
 		return
 
-	var character_list: CharacterList = metadata['characters']
+	var data: DialogueData = metadata['data']
+	var character_list: CharacterList = data.characters
 	var new_signature := get_character_signature(character_list)
 
 	if new_signature == _character_signature:
@@ -143,7 +144,7 @@ func _on_files_changed() -> void:
 		return
 
 	graph = new_metadata['graph']
-	_character_signature = get_character_signature(new_metadata['characters'])
+	_character_signature = get_character_signature(new_metadata['data'].characters)
 	graph.run_requested.connect(run_tree)
 	variables = new_metadata['variables']
 
