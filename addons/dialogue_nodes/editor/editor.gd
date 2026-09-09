@@ -25,6 +25,7 @@ func _ready() -> void:
 	file_menu.get_popup().id_pressed.connect(files._on_toolbar_menu_pressed)
 	run_menu.get_popup().id_pressed.connect(run_tree)
 	debug_menu.get_popup().id_pressed.connect(_on_debug_menu_pressed)
+	files.file_switched.connect(_on_file_switched)
 
 	dialogue_box.dialogue_started.connect(_on_dialogue_started)
 	dialogue_box.option_selected.connect(_on_dialogue_option_selected)
@@ -206,3 +207,12 @@ func _on_dialogue_ended() -> void:
 
 	if _debug:
 		print('Dialogue ended')
+
+
+func _on_file_switched() -> void:
+	var metadata: Dictionary = files.get_current_metadata()
+
+	if metadata.is_empty():
+		return
+
+	EditorInterface.inspect_object(metadata['data'])

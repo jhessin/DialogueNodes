@@ -325,17 +325,7 @@ func _on_popup_menu_pressed(id: int) -> void:
 
 
 func _on_file_selected(idx: int) -> void:
-	if not editor.undo_redo:
-		switch_file(idx)
-		return
-
-	var cur_metadata := get_item_metadata(cur_idx)
-	var new_metadata := get_item_metadata(idx)
-
-	editor.undo_redo.create_action('Switch file')
-	editor.undo_redo.add_do_method(self, 'switch_file', idx, new_metadata['path'])
-	editor.undo_redo.add_undo_method(self, 'switch_file', cur_idx, cur_metadata['path'])
-	editor.undo_redo.commit_action()
+	switch_file(idx)
 
 
 func _on_data_modified(_a = 0) -> void:
