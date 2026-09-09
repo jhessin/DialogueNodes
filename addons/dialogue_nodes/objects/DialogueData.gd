@@ -15,4 +15,4 @@ extends Resource
 ## Contains the node names of all the nodes not connected to a dialogue tree
 @export var strays: Array[String] = []
 ## Path to the [param CharacterList] resource file.
-@export var characters: CharacterList
+@export var characters := CharacterList.new()

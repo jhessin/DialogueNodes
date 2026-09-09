@@ -1,19 +1,18 @@
 @tool
 extends Control
 
-
 signal modified
 signal characters_updated(character_list: Array[Character])
 
 @export var editor_path: NodePath
 
+var editor: Control
+var last_file_path: String
+
 @onready var reset_button := $HBoxContainer/ResetButton
 @onready var file_path := $HBoxContainer/FilePath
 @onready var load_button := $HBoxContainer/LoadButton
 @onready var open_dialog := $OpenDialog
-
-var editor: Control
-var last_file_path: String
 
 
 func _ready() -> void:
@@ -21,8 +20,8 @@ func _ready() -> void:
 	reset_button.hide()
 
 
-func get_data() -> String:
-	return file_path.text
+func get_data() -> CharacterList:
+	return ResourceLoader.load(file_path.text) as CharacterList
 
 
 func load_data(path: String) -> void:
@@ -30,20 +29,20 @@ func load_data(path: String) -> void:
 		reset_button.hide()
 	else:
 		reset_button.show()
-	
+
 	if path != file_path.text:
 		file_path.text = path
 	last_file_path = path
-	
+
 	var resource: Resource
 	var character_list: Array[Character] = []
 	if path.ends_with('.tres') and ResourceLoader.exists(path):
 		resource = ResourceLoader.load(path, '', ResourceLoader.CACHE_MODE_REPLACE)
 		if resource is CharacterList:
 			character_list = resource.characters
-	
+
 	characters_updated.emit(character_list)
-	
+
 	if editor._debug:
 		print('Character data set: ', path)
 		if path.ends_with('.tres'):
@@ -57,7 +56,7 @@ func _on_reset_button_pressed() -> void:
 	if not editor.undo_redo:
 		load_data('')
 		return
-	
+
 	var cur_path: String = file_path.text
 	editor.undo_redo.create_action('Reset character list path')
 	editor.undo_redo.add_do_method(self, 'load_data', '')
@@ -71,7 +70,7 @@ func _on_file_path_text_changed() -> void:
 	if not editor.undo_redo:
 		load_data(file_path.text)
 		return
-	
+
 	editor.undo_redo.create_action('Set character list path')
 	editor.undo_redo.add_do_method(self, 'load_data', file_path.text)
 	editor.undo_redo.add_do_method(self, '_on_modified')
@@ -88,7 +87,7 @@ func _on_file_selected(path: String) -> void:
 	if not editor.undo_redo:
 		load_data(path)
 		return
-	
+
 	editor.undo_redo.create_action('Set character list path')
 	editor.undo_redo.add_do_method(self, 'load_data', path)
 	editor.undo_redo.add_do_method(self, '_on_modified')
