@@ -151,6 +151,7 @@ func save_as(path: String) -> void:
 	var metadata := get_item_metadata(cur_idx)
 
 	var data: DialogueData = metadata['graph'].get_data()
+	data.characters = metadata['characters']
 	data.variables = metadata['variables'].get_data()
 
 	# create entry for file

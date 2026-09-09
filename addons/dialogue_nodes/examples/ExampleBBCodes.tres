@@ -87,7 +87,7 @@ Usage: [lb]effect1[rb] [lb]effect2[rb] text goes here [lb]/effect2[rb] [lb]/effe
 "text": "Got it!"
 }
 },
-"size": Vector2(300.0003, 300),
+"size": Vector2(300.00024, 300),
 "speaker": "Greg"
 }
 }

@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="DialogueData" load_steps=2 format=3 uid="uid://bjme2drtas671"]
+[gd_resource type="Resource" script_class="DialogueData" format=3 uid="uid://bjme2drtas671"]
 
-[ext_resource type="Script" path="res://addons/dialogue_nodes/objects/DialogueData.gd" id="1"]
+[ext_resource type="Script" uid="uid://eit47g61t72a" path="res://addons/dialogue_nodes/objects/DialogueData.gd" id="1"]
+[ext_resource type="Resource" uid="uid://di21ijmfa2s22" path="res://addons/dialogue_nodes/examples/Characters.tres" id="1_6ekgu"]
 
 [resource]
 script = ExtResource("1")
@@ -9,17 +10,19 @@ starts = {
 "START2": &"0_2"
 }
 nodes = {
-"0_1": {
+&"0_1": {
 "link": &"1_1",
 "offset": Vector2(0, 0),
+"size": Vector2(179.99997, 86),
 "start_id": "START"
 },
-"0_2": {
+&"0_2": {
 "link": &"1_4",
 "offset": Vector2(0, 600),
+"size": Vector2(179.99997, 86),
 "start_id": "START2"
 },
-"1_1": {
+&"1_1": {
 "dialogue": "Which pill will you take?",
 "offset": Vector2(220, 0),
 "options": {
@@ -34,10 +37,10 @@ nodes = {
 "text": "Blue pill"
 }
 },
-"size": Vector2(300, 275),
-"speaker": "Morpheus"
+"size": Vector2(300, 304),
+"speaker": 3
 },
-"1_2": {
+&"1_2": {
 "dialogue": "Do you have the doctor's prescription for the pill?",
 "offset": Vector2(560, -80),
 "options": {
@@ -47,10 +50,10 @@ nodes = {
 "text": "Uh..."
 }
 },
-"size": Vector2(300, 242),
-"speaker": "Morpheus"
+"size": Vector2(300, 271),
+"speaker": 3
 },
-"1_3": {
+&"1_3": {
 "dialogue": "You shouldn't take pills from strangers, you know!",
 "offset": Vector2(560, 260),
 "options": {
@@ -60,10 +63,10 @@ nodes = {
 "text": "Oh..."
 }
 },
-"size": Vector2(300, 242),
-"speaker": "Morpheus"
+"size": Vector2(300, 271.00003),
+"speaker": 3
 },
-"1_4": {
+&"1_4": {
 "dialogue": "Heck, you can even make multiple dialogue trees in the same file! (Say, all dialogues for one character or one act)",
 "offset": Vector2(220, 600),
 "options": {
@@ -74,9 +77,9 @@ nodes = {
 }
 },
 "size": Vector2(300, 242.948),
-"speaker": "Greg"
+"speaker": 0
 },
-"1_5": {
+&"1_5": {
 "dialogue": "When you want to call a specific dialogue tree, just pass the unique start ID when calling [color=green]$DialogueBox.start('MyID')[/color]",
 "offset": Vector2(560, 600),
 "options": {
@@ -87,19 +90,18 @@ nodes = {
 }
 },
 "size": Vector2(300, 312.5),
-"speaker": "Greg"
+"speaker": 0
 },
-"2_1": {
+&"2_1": {
 "comment": "Create branching dialogues using different options.",
 "offset": Vector2(-200, 100),
-"size": Vector2(392.562, 100)
+"size": Vector2(392.56198, 100)
 },
-"2_2": {
+&"2_2": {
 "comment": "Create multiple dialogue trees in the same file.",
 "offset": Vector2(-200, 700),
-"size": Vector2(392.562, 100)
+"size": Vector2(392.56198, 100)
 }
 }
-variables = {}
 strays = Array[String](["2_1", "2_2"])
-characters = ""
+characters = ExtResource("1_6ekgu")
