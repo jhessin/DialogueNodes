@@ -74,7 +74,11 @@ func get_data() -> DialogueData:
 
 func load_data(data: DialogueData) -> void:
 	# clear graph
-	last_character_list = data.characters.characters if data.characters else []
+	if data == null:
+		data = DialogueData.new()
+		last_character_list = []
+	else:
+		last_character_list = data.characters.characters if data.characters else []
 	clear_connections()
 	for node in get_children():
 		if node is GraphElement:

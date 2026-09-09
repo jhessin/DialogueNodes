@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="DialogueData" format=3 uid="uid://c4ay241u6mexj"]
 
 [ext_resource type="Script" uid="uid://eit47g61t72a" path="res://addons/dialogue_nodes/objects/DialogueData.gd" id="1_0oio0"]
+[ext_resource type="Resource" uid="uid://di21ijmfa2s22" path="res://addons/dialogue_nodes/examples/Characters.tres" id="2_characters"]
 
 [resource]
 script = ExtResource("1_0oio0")
@@ -67,4 +68,4 @@ nodes = {
 "speaker": 1
 }
 }
-characters = "res://examples/Characters.tres"
+characters = ExtResource("2_characters")

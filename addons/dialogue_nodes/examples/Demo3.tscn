@@ -1,13 +1,13 @@
 [gd_scene format=3 uid="uid://dhwoh3ay4mp3c"]
 
-[ext_resource type="Script" uid="uid://dgrcn171ydt0s" path="res://examples/demo3.gd" id="1_2a8yf"]
-[ext_resource type="AudioStream" uid="uid://bin1ei6yesmjv" path="res://examples/voice.ogg" id="2_bjs48"]
+[ext_resource type="Script" uid="uid://dgrcn171ydt0s" path="res://addons/dialogue_nodes/examples/demo3.gd" id="1_2a8yf"]
+[ext_resource type="AudioStream" uid="uid://bin1ei6yesmjv" path="res://addons/dialogue_nodes/examples/voice.ogg" id="2_bjs48"]
 [ext_resource type="Theme" uid="uid://dq18l0hyb3bqt" path="res://addons/dialogue_nodes/themes/bubblyClean.theme" id="3_201t6"]
 [ext_resource type="Script" uid="uid://m31i3axecagx" path="res://addons/dialogue_nodes/objects/bbcodeWait.gd" id="4_tmfyu"]
 [ext_resource type="Script" uid="uid://blmdt7v8bd0nl" path="res://addons/dialogue_nodes/objects/bbcodeGhost.gd" id="5_vs72k"]
 [ext_resource type="Script" uid="uid://bsoctnc26xumr" path="res://addons/dialogue_nodes/objects/bbcodeMatrix.gd" id="6_pkic0"]
 [ext_resource type="Script" uid="uid://djd61d4k2mchi" path="res://addons/dialogue_nodes/objects/DialogueBubble.gd" id="7_wf6dy"]
-[ext_resource type="Resource" uid="uid://cwtdfv6yke8ri" path="res://examples/ExampleBubble.tres" id="8_qbppo"]
+[ext_resource type="Resource" uid="uid://cwtdfv6yke8ri" path="res://addons/dialogue_nodes/examples/ExampleBubble.tres" id="8_qbppo"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_xk202"]
 sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
