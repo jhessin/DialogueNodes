@@ -1,6 +1,18 @@
 [gd_resource type="Resource" script_class="DialogueData" format=3 uid="uid://c303qivlsn30t"]
 
 [ext_resource type="Script" uid="uid://eit47g61t72a" path="res://addons/dialogue_nodes/objects/DialogueData.gd" id="1"]
+[ext_resource type="Script" uid="uid://42coc6buijm5" path="res://addons/dialogue_nodes/objects/Character.gd" id="1_acmqp"]
+[ext_resource type="Script" uid="uid://dr0x7hw4xr8r7" path="res://addons/dialogue_nodes/objects/CharacterList.gd" id="2_x8mc8"]
+
+[sub_resource type="Resource" id="Resource_ibp82"]
+script = ExtResource("1_acmqp")
+name = "Greg"
+metadata/_custom_type_script = "uid://42coc6buijm5"
+
+[sub_resource type="Resource" id="Resource_o7jix"]
+script = ExtResource("2_x8mc8")
+characters = Array[ExtResource("1_acmqp")]([SubResource("Resource_ibp82")])
+metadata/_custom_type_script = "uid://dr0x7hw4xr8r7"
 
 [resource]
 script = ExtResource("1")
@@ -11,6 +23,7 @@ nodes = {
 &"0_1": {
 "link": &"1_1",
 "offset": Vector2(0, 0),
+"size": Vector2(180, 86),
 "start_id": "START"
 },
 &"1_1": {
@@ -51,7 +64,7 @@ nodes = {
 }
 },
 "size": Vector2(300, 275),
-"speaker": 1
+"speaker": 0
 }
 }
-characters = "res://examples/Characters.tres"
+characters = SubResource("Resource_o7jix")

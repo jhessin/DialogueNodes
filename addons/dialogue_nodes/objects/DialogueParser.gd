@@ -330,6 +330,9 @@ func _process_nest(dict: Dictionary) -> void:
 	_characters.push_back(characters.duplicate())
 	_nest_links.push_back(dict.link)
 	data = new_data
+	print("PARSER DATA:", data)
+	print("PARSER DATA CHARACTERS:", data.characters)
+	print("CHARACTER LIST ARRAY:", data.characters.characters)
 
 	for var_name in data.variables:
 		if variables.has(var_name):

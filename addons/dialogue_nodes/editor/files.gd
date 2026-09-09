@@ -129,7 +129,7 @@ func save_file(idx := cur_idx) -> void:
 	var metadata := get_item_metadata(idx)
 
 	var data: DialogueData = metadata['graph'].get_data()
-	data.characters = metadata['characters'].get_data()
+	data.characters = metadata['characters']
 	data.variables = metadata['variables'].get_data()
 
 	# save to file
