@@ -43,7 +43,6 @@ func create_entry(file_name: String, path: String, data: DialogueData) -> void:
 			'display_name': file_name,
 			'path': path,
 			'data': data,
-			'characters': data.characters,
 			'variables': null,
 			'graph': null,
 			'modified': false,
@@ -133,7 +132,7 @@ func save_file(idx := cur_idx) -> void:
 	var metadata := get_item_metadata(idx)
 
 	var data: DialogueData = metadata['graph'].get_data()
-	data.characters = metadata['characters']
+	data.characters = metadata['data'].characters
 	data.variables = metadata['variables'].get_data()
 
 	# save to file
@@ -155,7 +154,7 @@ func save_as(path: String) -> void:
 	var metadata := get_item_metadata(cur_idx)
 
 	var data: DialogueData = metadata['graph'].get_data()
-	data.characters = metadata['characters']
+	data.characters = metadata['data'].characters
 	data.variables = metadata['variables'].get_data()
 
 	# create entry for file

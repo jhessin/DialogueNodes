@@ -34,4 +34,3 @@ nodes = {
 }
 variables = {}
 strays = Array[String](["2_1"])
-characters = ""

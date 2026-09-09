@@ -6,7 +6,7 @@ var graph: GraphEdit
 var variables: VBoxContainer
 var _debug := false
 var _add_menu_initialized := false
-var _character_signature: Array = []
+var _last_character_signature: Array = []
 
 @onready var file_menu := $Main/ToolBar/FileMenu
 @onready var debug_menu := $Main/ToolBar/DebugMenu
@@ -49,10 +49,10 @@ func _process(_delta: float) -> void:
 	var character_list: CharacterList = data.characters
 	var new_signature := get_character_signature(character_list)
 
-	if new_signature == _character_signature:
+	if new_signature == _last_character_signature:
 		return
 
-	_character_signature = new_signature
+	_last_character_signature = new_signature
 	graph.refresh_characters(character_list)
 	files.set_modified(files.cur_idx, true)
 
@@ -62,9 +62,11 @@ func run_tree(start_node_idx: int) -> void:
 		return
 
 	var start_node := graph.get_node(NodePath(graph.starts[start_node_idx]))
-	var data: DialogueData
-	data = start_node.tree_to_data(graph)
-	data.characters = files.get_current_metadata()['characters']
+	var metadata: Dictionary = files.get_current_metadata()
+	var source_data: DialogueData = metadata['data']
+
+	var data: DialogueData = start_node.tree_to_data(graph)
+	data.characters = source_data.characters
 	data.variables = variables.get_data()
 
 	dialogue_box.data = data
@@ -145,7 +147,7 @@ func _on_files_changed() -> void:
 		return
 
 	graph = new_metadata['graph']
-	_character_signature = get_character_signature(new_metadata['data'].characters)
+	_last_character_signature = get_character_signature(new_metadata['data'].characters)
 	graph.run_requested.connect(run_tree)
 	variables = new_metadata['variables']
 
