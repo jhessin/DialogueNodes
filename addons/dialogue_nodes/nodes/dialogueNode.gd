@@ -258,7 +258,7 @@ func _on_characters_updated(character_list: Array[Character]) -> void:
 		speaker.add_item(character.name)
 
 	if character_list.size() > 0:
-		if cur_speaker > character_list.size():
+		if cur_speaker >= character_list.size():
 			cur_speaker = 0
 		speaker.select(cur_speaker)
 	else:

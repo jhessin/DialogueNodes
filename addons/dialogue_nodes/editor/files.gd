@@ -56,6 +56,10 @@ func create_entry(file_name: String, path: String, data: DialogueData) -> void:
 		graph.load_data(data)
 		remove_child(graph)
 		metadata['graph'] = graph
+		if data.characters:
+			data.characters.changed.connect(_on_characters_changed.bind(new_idx))
+			for character in data.characters.characters:
+				character.changed.connect(_on_character_changed.bind(new_idx))
 
 		# create variables node for this file
 		var variables := VariablesScene.instantiate()
@@ -359,3 +363,25 @@ func _on_confirm_dialog_action(action: String) -> void:
 
 func _on_confirm_dialog_canceled() -> void:
 	deletion_queue.clear()
+
+
+func _on_characters_changed(idx: int) -> void:
+	if idx < 0 or idx >= item_count:
+		return
+
+	var metadata := get_item_metadata(idx)
+	var character_list: CharacterList = metadata['characters']
+
+	if character_list:
+		metadata['graph'].refresh_characters(character_list)
+
+
+func _on_character_changed(idx: int) -> void:
+	if idx < 0 or idx >= item_count:
+		return
+
+	var metadata := get_item_metadata(idx)
+	var character_list: CharacterList = metadata['characters']
+
+	if character_list:
+		metadata['graph'].refresh_characters(character_list)

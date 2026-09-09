@@ -116,6 +116,15 @@ func load_data(data: DialogueData) -> void:
 			node._after_loaded(self)
 
 
+func refresh_characters(character_list: CharacterList) -> void:
+	last_character_list.clear()
+
+	if character_list:
+		last_character_list.assign(character_list.characters)
+
+	characters_updated.emit(last_character_list)
+
+
 func init_add_menu(add_menu: PopupMenu) -> void:
 	# clear if already existing items
 	add_menu.clear()
