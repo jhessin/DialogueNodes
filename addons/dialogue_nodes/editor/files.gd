@@ -325,6 +325,8 @@ func _on_popup_menu_pressed(id: int) -> void:
 
 
 func _on_file_selected(idx: int) -> void:
+	if idx == cur_idx:
+		return
 	switch_file(idx)
 
 
