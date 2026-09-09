@@ -6,6 +6,7 @@ var graph: GraphEdit
 var variables: VBoxContainer
 var _debug := false
 var _add_menu_initialized := false
+var _character_signature: Array = []
 
 @onready var file_menu := $Main/ToolBar/FileMenu
 @onready var debug_menu := $Main/ToolBar/DebugMenu
@@ -36,6 +37,24 @@ func _ready() -> void:
 	version_number.text = config.get_value('plugin', 'version')
 
 
+func _process(_delta: float) -> void:
+	if not is_instance_valid(graph):
+		return
+
+	var metadata: Dictionary = files.get_current_metadata()
+	if metadata.is_empty():
+		return
+
+	var character_list: CharacterList = metadata['characters']
+	var new_signature := get_character_signature(character_list)
+
+	if new_signature == _character_signature:
+		return
+
+	_character_signature = new_signature
+	graph.refresh_characters(character_list)
+
+
 func run_tree(start_node_idx: int) -> void:
 	if not is_instance_valid(graph):
 		return
@@ -49,6 +68,26 @@ func run_tree(start_node_idx: int) -> void:
 	dialogue_box.data = data
 	dialogue_box.start(start_node.start_id)
 	dialogue_background.show()
+
+
+func get_character_signature(character_list: CharacterList) -> Array:
+	var signature: Array = []
+
+	if not character_list:
+		return signature
+
+	for character in character_list.characters:
+		if character != null:
+			signature.append(
+				[
+					character.get_instance_id(),
+					character.name,
+					character.color,
+					character.image.get_instance_id() if character.image else 0,
+				]
+			)
+
+	return signature
 
 
 func _on_debug_menu_pressed(idx: int) -> void:
@@ -104,6 +143,7 @@ func _on_files_changed() -> void:
 		return
 
 	graph = new_metadata['graph']
+	_character_signature = get_character_signature(new_metadata['characters'])
 	graph.run_requested.connect(run_tree)
 	variables = new_metadata['variables']
 
