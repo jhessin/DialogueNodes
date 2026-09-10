@@ -16,3 +16,12 @@ extends Resource
 @export var strays: Array[String] = []
 ## Contains the characters available to dialogue nodes.
 @export var characters: CharacterList
+## Contains the custom nodes to be used in this dialogue if any.
+@export var custom_nodes: Array[CustomNode]
+
+var custom_node_dict: Dictionary[StringName, CustomNode]:
+	get:
+		var result: Dictionary[StringName, CustomNode] = { }
+		for node in custom_nodes:
+			result[node.id] = node
+		return result
