@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://d12gkuka24htm"]
+
+[node name="TestNode" type="GraphNode" unique_id=770525266]
+offset_right = 200.0
+offset_bottom = 60.0
+title = "Test Node"
