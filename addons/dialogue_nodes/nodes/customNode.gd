@@ -11,5 +11,5 @@ extends Resource
 
 
 ## This is the processor that runs when the node is executed.
-func execute(context: DialogueData, parser: DialogueParser) -> DialogueResult:
+func execute(parser: DialogueParser) -> DialogueResult:
 	return DialogueResult.new(DialogueResult.Action.CONTINUE)
