@@ -1,6 +1,9 @@
 [gd_scene format=3 uid="uid://d12gkuka24htm"]
 
+[ext_resource type="Script" uid="uid://ceud4bfs0rswd" path="res://addons/dialogue_nodes/nodes/customGraphNode.gd" id="1_5hwe6"]
+
 [node name="TestNode" type="GraphNode" unique_id=770525266]
 offset_right = 200.0
 offset_bottom = 60.0
 title = "Test Node"
+script = ExtResource("1_5hwe6")
