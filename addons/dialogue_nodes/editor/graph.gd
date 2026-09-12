@@ -130,7 +130,7 @@ func refresh_characters(character_list: CharacterList) -> void:
 	characters_updated.emit(last_character_list)
 
 
-func init_add_menu(add_menu: PopupMenu) -> void:
+func init_add_menu(add_menu: PopupMenu, dialogue_data: DialogueData = data) -> void:
 	# clear if already existing items
 	add_menu.clear()
 	custom_node_ids.clear()
@@ -142,12 +142,14 @@ func init_add_menu(add_menu: PopupMenu) -> void:
 		scene_instance.queue_free()
 		add_menu.add_item(scene_name, i)
 
-	if not data.custom_nodes.is_empty():
-		add_menu.add_separator('Custom Nodes')
+	if dialogue_data.custom_nodes.is_empty():
+		return
+
+	add_menu.add_separator('Custom Nodes')
 
 	var id: int = CUSTOM_NODE_ID_OFFSET
 
-	for node: CustomNode in data.custom_nodes:
+	for node: CustomNode in dialogue_data.custom_nodes:
 		if node == null or node.scene == null:
 			continue
 		var scene_instance := node.scene.instantiate()

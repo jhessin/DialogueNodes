@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://eit47g61t72a" path="res://addons/dialogue_nodes/objects/DialogueData.gd" id="1"]
 [ext_resource type="Script" uid="uid://7mewhj5kphyy" path="res://addons/dialogue_nodes/nodes/customNode.gd" id="1_bigod"]
+[ext_resource type="Resource" uid="uid://bh6d5owswr7iw" path="res://addons/dialogue_nodes/examples/ExampleCustomNode.tres" id="2_lpmxe"]
 
 [resource]
 script = ExtResource("1")
@@ -14,6 +15,10 @@ nodes = {
 "offset": Vector2(0, 0),
 "size": Vector2(173, 86),
 "start_id": "START"
+},
+&"1000_1": {
+"custom_node_id": &"",
+"offset": Vector2(700, 240)
 },
 &"1_1": {
 "dialogue": "Hey there!",
@@ -34,3 +39,4 @@ nodes = {
 "size": Vector2(200.00002, 100.00003)
 }
 }
+custom_nodes = Array[ExtResource("1_bigod")]([ExtResource("2_lpmxe")])

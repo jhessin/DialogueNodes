@@ -60,6 +60,7 @@ func _process(_delta: float) -> void:
 	if new_node_signature != _last_custom_node_signature:
 		_last_custom_node_signature = new_node_signature
 		graph.init_add_menu(add_menu.get_popup())
+		graph.init_add_menu(graph.popup_menu)
 		files.set_modified(files.cur_idx, true)
 
 
@@ -124,6 +125,7 @@ func custom_nodes_changed() -> void:
 
 	graph.data = data
 	graph.init_add_menu(add_menu.get_popup())
+	graph.init_add_menu(graph.popup_menu)
 	files.set_modified(files.cur_idx, true)
 
 
@@ -193,6 +195,7 @@ func _on_files_changed() -> void:
 	variables = new_metadata['variables']
 
 	graph.init_add_menu(add_menu.get_popup())
+	graph.init_add_menu(graph.popup_menu)
 
 
 func _on_files_toggle_button_pressed() -> void:
