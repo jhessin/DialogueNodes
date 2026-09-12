@@ -1,8 +1,8 @@
 [gd_resource type="Resource" script_class="DialogueData" format=3 uid="uid://dj818hys8f3u8"]
 
-[ext_resource type="Script" uid="uid://eit47g61t72a" path="res://addons/dialogue_nodes/objects/DialogueData.gd" id="1"]
+[ext_resource type="Script" uid="uid://eit47g61t72a" path="res://addons/dialogue_nodes/objects/dialogue_data.gd" id="1"]
 [ext_resource type="Resource" uid="uid://di21ijmfa2s22" path="res://addons/dialogue_nodes/examples/Characters.tres" id="1_ypq8h"]
-[ext_resource type="PackedScene" uid="uid://d12gkuka24htm" path="res://addons/dialogue_nodes/examples/ExampleCustomNode.tscn" id="2_lpmxe"]
+[ext_resource type="Resource" uid="uid://bh6d5owswr7iw" path="res://addons/dialogue_nodes/examples/ExampleCustomNode.tres" id="2_lpmxe"]
 
 [resource]
 script = ExtResource("1")
@@ -40,4 +40,4 @@ nodes = {
 }
 }
 characters = ExtResource("1_ypq8h")
-custom_node_scenes = Array[PackedScene]([ExtResource("2_lpmxe")])
+custom_nodes = Array[Resource]([ExtResource("2_lpmxe")])

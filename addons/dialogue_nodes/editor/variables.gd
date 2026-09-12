@@ -7,19 +7,18 @@ signal modified
 @onready var var_container := $ScrollContainer/VBoxContainer
 
 var undo_redo: EditorUndoRedoManager
+var data: DialogueData
 var variable_item_scene := preload('res://addons/dialogue_nodes/editor/VariableItem.tscn')
 
 
 func get_data() -> Dictionary:
-	var dict := {}
-	
-	for child in var_container.get_children():
-		if child is HBoxContainer:
-			var var_name: String = child.get_var_name()
-			if var_name != '':
-				dict[var_name] = child.get_data()
-	
-	return dict
+	_sync_to_data()
+	return data.variables if data else {}
+
+
+func bind_data(dialogue_data: DialogueData) -> void:
+	data = dialogue_data
+	load_data(data.variables if data else {})
 
 
 func load_data(dict: Dictionary) -> void:
@@ -111,5 +110,23 @@ func _on_delete_requested(variable: BoxContainer) -> void:
 	undo_redo.commit_action()
 
 
-func _on_modified(_a= 0, _b= 0) -> void:
+func _sync_to_data() -> void:
+	if data == null:
+		return
+	data.variables = get_ui_data()
+	data.emit_changed()
+
+
+func get_ui_data() -> Dictionary:
+	var result := {}
+	for child in var_container.get_children():
+		if child is HBoxContainer:
+			var var_name: String = child.get_var_name()
+			if not var_name.is_empty():
+				result[var_name] = child.get_data()
+	return result
+
+
+func _on_modified(_a = 0, _b = 0) -> void:
+	_sync_to_data()
 	modified.emit()

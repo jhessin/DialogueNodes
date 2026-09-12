@@ -63,7 +63,7 @@ func create_entry(file_name: String, path: String, data: DialogueData) -> void:
 		add_child(variables)
 		variables.undo_redo = editor.undo_redo
 		variables.modified.connect(_on_data_modified)
-		variables.load_data(data.variables)
+		variables.bind_data(data)
 		remove_child(variables)
 		metadata['variables'] = variables
 
@@ -132,11 +132,10 @@ func save_file(idx := cur_idx) -> void:
 
 	var metadata := get_item_metadata(idx)
 
-	var data: DialogueData = metadata['graph'].get_data()
-	data.characters = metadata['data'].characters
-	data.variables = metadata['variables'].get_data()
+	var data: DialogueData = metadata['data']
+	metadata['graph'].get_data()
 
-	# save to file
+	# save the single shared DialogueData resource
 	ResourceSaver.save(data, metadata['path'])
 
 	# toggle modified flag
@@ -153,9 +152,8 @@ func save_as(path: String) -> void:
 	var file_name: String = path.split('/')[-1]
 	var metadata := get_item_metadata(cur_idx)
 
-	var data: DialogueData = metadata['graph'].get_data()
-	data.characters = metadata['data'].characters
-	data.variables = metadata['variables'].get_data()
+	var data: DialogueData = metadata['data']
+	metadata['graph'].get_data()
 
 	# create entry for file
 	create_entry(file_name, path, data)

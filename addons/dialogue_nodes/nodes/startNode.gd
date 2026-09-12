@@ -65,13 +65,14 @@ func data_to_tree(graph: Graph, data: DialogueData, node_name := name) -> void:
 
 		if node_data.has('custom_node_id'):
 			var custom_node_id: StringName = node_data['custom_node_id']
-			var custom_scene: PackedScene = data.scene_dict[custom_node_id]
+			var custom_node := data.get_custom_node(custom_node_id)
 
-			if custom_scene == null:
-				# The CustomNode no longer exists, so don't recreate this graph node.
+			if custom_node == null or custom_node.scene == null:
 				return
 
-			var node: GraphElement = graph.add_custom_node(custom_scene, node_name, offset)
+			var node: GraphElement = graph.add_custom_node(custom_node.scene, node_name, offset)
+			if node is CustomGraphNode:
+				node.custom_node = custom_node
 
 			next_nodes = node._from_dict(node_data)
 		else:
