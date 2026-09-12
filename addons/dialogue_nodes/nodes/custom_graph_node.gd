@@ -17,7 +17,7 @@ func _to_dict(graph: GraphEdit) -> Dictionary:
 		"link": "END",
 		"size": size,
 	}
-	var connections := graph.get_connections(name)
+	var connections: Array[Dictionary] = graph.get_connections(name)
 	if not connections.is_empty():
 		result["link"] = connections[0]["to_node"]
 	return result

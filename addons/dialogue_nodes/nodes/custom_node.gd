@@ -18,5 +18,5 @@ extends Resource
 ## Executes this node against the current DialogueData.
 ##
 ## Override this method in a derived CustomNode to implement behavior.
-func execute(context: DialogueData, parser: DialogueParser) -> DialogueResult:
+func execute(context: Resource, parser: Node) -> DialogueResult:
 	return DialogueResult.continue_dialogue()
