@@ -111,7 +111,7 @@ func _on_inspector_property_edited(property: StringName) -> void:
 	if not is_instance_valid(editor):
 		return
 
-	if property == &"custom_nodes":
+	if property == &"custom_node_scenes":
 		editor.call_deferred('custom_nodes_changed')
 
 	if property == &'characters':

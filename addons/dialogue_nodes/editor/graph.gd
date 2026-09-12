@@ -31,6 +31,28 @@ var request_port := -1
 var last_character_list: Array[Character] = []
 var data: DialogueData
 var custom_node_scenes: Dictionary[int, PackedScene] = { }
+var custom_node_scenes_by_id: Dictionary[StringName, PackedScene] = { }:
+	get:
+		var result: Dictionary[StringName, PackedScene]
+		for scene: PackedScene in custom_node_scenes.values():
+			if scene == null:
+				continue
+
+			var instance: Node = scene.instantiate()
+
+			if instance is not CustomGraphNode:
+				instance.queue_free()
+				continue
+
+			var custom_node: CustomNode = instance.custom_node
+
+			if custom_node == null:
+				instance.queue_free()
+				continue
+
+			result[custom_node.id] = scene
+
+		return result
 
 var editor_settings: EditorSettings
 var base_color: Color
