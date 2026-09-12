@@ -5,6 +5,7 @@ signal modified
 signal characters_updated(character_list: Array[Character])
 signal run_requested(start_node_idx: int)
 
+const CUSTOM_NODE_ID_OFFSET: int = 1000
 const _duplicate_offset := Vector2(20, 20)
 
 @export var NodeScenes: Array[PackedScene] = [
@@ -144,16 +145,19 @@ func init_add_menu(add_menu: PopupMenu) -> void:
 	if not data.custom_nodes.is_empty():
 		add_menu.add_separator('Custom Nodes')
 
-	for node: CustomNode in data.enumerate_custom_nodes():
+	var id: int = CUSTOM_NODE_ID_OFFSET
+
+	for node: CustomNode in data.custom_nodes:
 		if node == null or node.scene == null:
 			continue
 		var scene_instance := node.scene.instantiate()
 		var scene_name: String = scene_instance.name
 		scene_instance.queue_free()
 
-		var menu_id = node.menu_index
-		custom_node_ids[menu_id] = node.id
-		add_menu.add_item(scene_name, menu_id)
+		custom_node_ids[id] = node.id
+		add_menu.add_item(scene_name, id)
+
+		id += 1
 
 
 func add_node(id: int, node_name := '', offset := cursor_pos) -> GraphElement:
@@ -163,7 +167,7 @@ func add_node(id: int, node_name := '', offset := cursor_pos) -> GraphElement:
 	var new_node: GraphNode
 	if id < NodeScenes.size():
 		new_node = NodeScenes[id].instantiate()
-	elif id >= CustomNode.CUSTOM_NODE_ID_OFFSET:
+	elif id >= CUSTOM_NODE_ID_OFFSET:
 		var custom_id: StringName = custom_node_ids[id]
 		var custom_node := data.custom_node_dict[custom_id]
 		new_node = custom_node.scene.instantiate()

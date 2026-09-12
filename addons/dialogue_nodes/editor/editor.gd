@@ -82,17 +82,11 @@ func run_tree(start_node_idx: int) -> void:
 
 func get_custom_node_signature(custom_nodes: Array[CustomNode]) -> Array:
 	var signature: Array = []
-	var metadata: Dictionary = files.get_current_metadata()
-	if metadata.is_empty():
-		return []
 
-	var data: DialogueData = metadata['data']
-	var nodes: Array[CustomNode] = data.custom_nodes
-
-	for node in nodes:
+	for node in custom_nodes:
 		if node == null:
 			continue
-		signature.append([node.id, node.scene])
+		signature.append([node.id, node.display_name, node.scene])
 
 	return signature
 
@@ -159,6 +153,8 @@ func _on_files_changed() -> void:
 		graph.run_requested.disconnect(run_tree)
 
 	if files.item_count == 0:
+		graph = null
+		variables = null
 		return
 
 	var new_metadata: Dictionary = files.get_current_metadata()
@@ -168,8 +164,14 @@ func _on_files_changed() -> void:
 		variables = null
 		return
 
+	var new_data: DialogueData = new_metadata['data']
+
 	graph = new_metadata['graph']
-	_last_character_signature = get_character_signature(new_metadata['data'].characters)
+	graph.data = new_data
+
+	_last_character_signature = get_character_signature(new_data.characters)
+	_last_custom_node_signature = get_custom_node_signature(new_data.custom_nodes)
+
 	graph.run_requested.connect(run_tree)
 	variables = new_metadata['variables']
 
