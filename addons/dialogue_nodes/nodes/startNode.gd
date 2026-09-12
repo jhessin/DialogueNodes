@@ -1,9 +1,11 @@
 @tool
 extends GraphNode
 
-
 signal modified
 signal run_requested
+
+var undo_redo: EditorUndoRedoManager
+var last_size := size
 
 @onready var run_button := $HBoxContainer/RunButton
 @onready var ID := $HBoxContainer/ID
@@ -11,42 +13,15 @@ signal run_requested
 @onready var timer := $Timer
 @onready var resize_timer: Timer = $ResizeTimer
 
-var undo_redo: EditorUndoRedoManager
-var last_size := size
-
-
-func _to_dict(graph: GraphEdit) -> Dictionary:
-	var dict := {}
-	var connections: Array = graph.get_connections(name)
-	
-	dict['start_id'] = start_id
-	dict['link'] = connections[0]['to_node'] if connections.size() > 0 else 'END'
-	dict['size'] = size
-	
-	return dict
-
-
-func _from_dict(dict: Dictionary) -> Array[String]:
-	start_id = dict['start_id']
-	ID.text = start_id
-	
-	# set size of node
-	if dict.has('size'):
-		var new_size: Vector2
-		if dict['size'] is Vector2:
-			new_size = dict['size']
-		else: # for dialogue files created before v1.0.2
-			new_size = Vector2( float(dict['size']['x']), float(dict['size']['y']) )
-		size = new_size
-		last_size = size
-	
-	return [dict['link']]
-
 
 ## convert graph/tree from this node to data
-func tree_to_data(graph: GraphEdit, data := DialogueData.new(), node: GraphNode = self) -> DialogueData:
+func tree_to_data(
+	graph: GraphEdit,
+	data := DialogueData.new(),
+	node: GraphNode = self,
+) -> DialogueData:
 	var next_nodes: Array = graph.get_connections(node.name)
-	
+
 	# setup
 	if node == self:
 		if start_id == '':
@@ -55,11 +30,11 @@ func tree_to_data(graph: GraphEdit, data := DialogueData.new(), node: GraphNode 
 			printerr(title, ' is not connected!')
 			return data
 		data.starts[start_id] = name
-	
+
 	# add data for current node
 	data.nodes[node.name] = node._to_dict(graph)
 	data.nodes[node.name]['offset'] = node.position_offset
-	
+
 	# add data for next nodes
 	for next_node in next_nodes:
 		# if node already defined in data
@@ -67,14 +42,14 @@ func tree_to_data(graph: GraphEdit, data := DialogueData.new(), node: GraphNode 
 			continue
 		# get data from node
 		data = tree_to_data(graph, data, graph.get_node(NodePath(next_node['to_node'])))
-	
+
 	return data
 
 
 ## create tree on this node from the given data
-func data_to_tree(graph: GraphEdit, data: DialogueData, node_name := name) -> void:
+func data_to_tree(graph: Graph, data: DialogueData, node_name := name) -> void:
 	var next_nodes := []
-	
+
 	# setup and end
 	if node_name == name:
 		next_nodes = _from_dict(data.nodes[node_name])
@@ -85,13 +60,30 @@ func data_to_tree(graph: GraphEdit, data: DialogueData, node_name := name) -> vo
 		graph.request_port = -1
 		return
 	elif not graph.has_node(NodePath(node_name)):
-		var type := int(node_name.split('_')[0])
+		var node_data: Dictionary = data.nodes[node_name]
 		var offset: Vector2 = data.nodes[node_name]['offset']
-		var node: GraphElement = graph.add_node(type, node_name, offset)
-		next_nodes = node._from_dict(data.nodes[node_name])
+
+		if node_data.has('custom_node_id'):
+			var custom_node_id: StringName = node_data['custom_node_id']
+			var custom_node: CustomNode = data.custom_node_dict.get(custom_node_id)
+
+			if custom_node == null or custom_node.scene == null:
+				# The CustomNode no longer exists, so don't recreate this graph node.
+				return
+
+			var node: GraphElement = graph.add_custom_node(custom_node, node_name, offset)
+
+			if node is CustomGraphNode:
+				node.custom_node = custom_node
+
+			next_nodes = node._from_dict(node_data)
+		else:
+			var type: int = int(node_name.split('_')[0])
+			var node: GraphElement = graph.add_node(type, node_name, offset)
+			next_nodes = node._from_dict(data.nodes[node_name])
 	elif graph.has_node(NodePath(node_name)) and graph.request_port > -1:
 		graph.connect_node(graph.request_node, graph.request_port, node_name, 0)
-	
+
 	for i in range(next_nodes.size()):
 		graph.request_node = node_name
 		graph.request_port = i
@@ -104,6 +96,34 @@ func set_ID(new_id: String) -> void:
 		ID.text = start_id
 
 
+func _to_dict(graph: GraphEdit) -> Dictionary:
+	var dict := { }
+	var connections: Array = graph.get_connections(name)
+
+	dict['start_id'] = start_id
+	dict['link'] = connections[0]['to_node'] if connections.size() > 0 else 'END'
+	dict['size'] = size
+
+	return dict
+
+
+func _from_dict(dict: Dictionary) -> Array[String]:
+	start_id = dict['start_id']
+	ID.text = start_id
+
+	# set size of node
+	if dict.has('size'):
+		var new_size: Vector2
+		if dict['size'] is Vector2:
+			new_size = dict['size']
+		else: # for dialogue files created before v1.0.2
+			new_size = Vector2(float(dict['size']['x']), float(dict['size']['y']))
+		size = new_size
+		last_size = size
+
+	return [dict['link']]
+
+
 func _on_ID_changed(_id) -> void:
 	timer.stop()
 	timer.start()
@@ -113,7 +133,7 @@ func _on_timer_timeout() -> void:
 	if not undo_redo:
 		start_id = ID.text
 		return
-	
+
 	undo_redo.create_action('Set start ID')
 	undo_redo.add_do_method(self, 'set_ID', ID.text)
 	undo_redo.add_do_method(self, '_on_modified')
@@ -137,7 +157,7 @@ func _on_modified() -> void:
 func _on_resize(_new_size) -> void:
 	resize_timer.stop()
 	resize_timer.start()
-	
+
 	# FIXME: find a way to clamp node size along y axis without using _process()
 	size.y = 86
 
@@ -146,7 +166,7 @@ func _on_resize_timer_timeout() -> void:
 	if not undo_redo:
 		print_rich('[shake][color="FF8866"]WOMP WOMP no undo_redo??[/color][/shake]')
 		return
-	
+
 	size.y = 86
 	undo_redo.create_action('Set node size')
 	undo_redo.add_do_method(self, 'set_size', size)

@@ -1,4 +1,5 @@
 @tool
+class_name Graph
 extends GraphEdit
 
 signal modified
@@ -174,6 +175,9 @@ func add_node(id: int, node_name := '', offset := cursor_pos) -> GraphElement:
 		var custom_node := data.custom_node_dict[custom_id]
 		new_node = custom_node.scene.instantiate()
 
+		if new_node is CustomGraphNode:
+			new_node.custom_node = custom_node
+
 	new_node.position_offset = offset
 	new_node.undo_redo = undo_redo
 	new_node.selected = true
@@ -339,6 +343,31 @@ func update_slots_color(nodes: Array = get_children()) -> void:
 
 		if 'base_color' in node:
 			node.base_color = base_color
+
+
+func add_custom_node(
+	custom_node: CustomNode,
+	node_name: String = '',
+	offset: Vector2 = cursor_pos,
+) -> GraphElement:
+	deselect_all_nodes()
+
+	var new_node: GraphElement = custom_node.scene.instantiate()
+
+	new_node.position_offset = offset
+	new_node.undo_redo = undo_redo
+	new_node.selected = true
+	selected_nodes.append(new_node)
+
+	new_node.name = node_name if node_name != '' else custom_node.id
+	add_child(new_node, true)
+
+	if new_node.name.contains('_'):
+		new_node.title += ' #' + new_node.name.split('_')[1]
+
+	connect_node_signals(new_node)
+
+	return new_node
 
 
 func _on_add_menu_pressed(id: int) -> void:
