@@ -42,12 +42,10 @@ func run_tree(start_node_idx: int) -> void:
 
 	var start_node := graph.get_node(NodePath(graph.starts[start_node_idx]))
 	var metadata: Dictionary = files.get_current_metadata()
-	var source_data: DialogueData = metadata['data']
+	var data: DialogueData = metadata['data']
 
-	var data: DialogueData = start_node.tree_to_data(graph)
-	data.characters = source_data.characters
-	data.variables = variables.get_data()
-
+	# The editor and preview use the same DialogueData instance.
+	graph.get_data()
 	dialogue_box.data = data
 	dialogue_box.start(start_node.start_id)
 	dialogue_background.show()
