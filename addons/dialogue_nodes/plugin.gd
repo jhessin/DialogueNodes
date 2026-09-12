@@ -108,8 +108,11 @@ func _save_external_data() -> void:
 
 
 func _on_inspector_property_edited(property: StringName) -> void:
-	if property == &"custom_nodes":
-		if not is_instance_valid(editor):
-			return
+	if not is_instance_valid(editor):
+		return
 
+	if property == &"custom_nodes":
 		editor.call_deferred('custom_nodes_changed')
+
+	if property == &'characters':
+		editor.call_deferred('characters_changed')

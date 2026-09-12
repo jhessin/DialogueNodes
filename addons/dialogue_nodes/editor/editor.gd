@@ -5,7 +5,6 @@ var undo_redo: EditorUndoRedoManager
 var graph: GraphEdit
 var variables: VBoxContainer
 var _debug := false
-var _last_character_signature: Array = []
 
 @onready var file_menu := $Main/ToolBar/FileMenu
 @onready var debug_menu := $Main/ToolBar/DebugMenu
@@ -37,25 +36,6 @@ func _ready() -> void:
 	version_number.text = config.get_value('plugin', 'version')
 
 
-func _process(_delta: float) -> void:
-	if not is_instance_valid(graph):
-		return
-
-	var metadata: Dictionary = files.get_current_metadata()
-	if metadata.is_empty():
-		return
-
-	var data: DialogueData = metadata['data']
-	var character_list: CharacterList = data.characters
-	var custom_nodes: Array[CustomNode] = data.custom_nodes
-	var new_signature := get_character_signature(character_list)
-
-	if new_signature != _last_character_signature:
-		_last_character_signature = new_signature
-		graph.refresh_characters(character_list)
-		files.set_modified(files.cur_idx, true)
-
-
 func run_tree(start_node_idx: int) -> void:
 	if not is_instance_valid(graph):
 		return
@@ -73,23 +53,14 @@ func run_tree(start_node_idx: int) -> void:
 	dialogue_background.show()
 
 
-func get_character_signature(character_list: CharacterList) -> Array:
-	var signature: Array = []
+func characters_changed() -> void:
+	if graph == null:
+		return
 
-	if not character_list:
-		return signature
+	var data: DialogueData = files.get_current_metadata()['data']
 
-	for character in character_list.characters:
-		if character != null:
-			signature.append(
-				[
-					character.name,
-					character.color,
-					character.image.get_instance_id() if character.image else 0,
-				]
-			)
-
-	return signature
+	graph.refresh_characters(data.characters)
+	files.set_modified(files.cur_idx, true)
 
 
 func custom_nodes_changed() -> void:
@@ -166,8 +137,6 @@ func _on_files_changed() -> void:
 
 	graph = new_metadata['graph']
 	graph.data = new_data
-
-	_last_character_signature = get_character_signature(new_data.characters)
 
 	graph.run_requested.connect(run_tree)
 	variables = new_metadata['variables']
