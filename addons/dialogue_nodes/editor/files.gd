@@ -54,7 +54,7 @@ func create_entry(file_name: String, path: String, data: DialogueData) -> void:
 		add_child(graph)
 		graph.undo_redo = editor.undo_redo
 		graph.modified.connect(_on_data_modified)
-		graph.load_data(data)
+		graph.load_data()
 		remove_child(graph)
 		metadata['graph'] = graph
 

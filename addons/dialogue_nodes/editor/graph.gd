@@ -78,7 +78,7 @@ func get_data() -> DialogueData:
 	return data
 
 
-func load_data(data: DialogueData) -> void:
+func load_data() -> void:
 	# clear graph
 	if data == null:
 		data = DialogueData.new()

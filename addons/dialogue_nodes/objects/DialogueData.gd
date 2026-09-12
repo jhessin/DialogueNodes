@@ -66,5 +66,6 @@ var scene_dict: Dictionary[StringName, PackedScene]:
 				continue
 
 			result[custom_node.id] = scene
+			instance.queue_free()
 
 		return result
