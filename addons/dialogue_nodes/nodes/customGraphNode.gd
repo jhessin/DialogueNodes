@@ -11,8 +11,16 @@ var last_size := size
 var last_text := ''
 
 
-func _to_dict(_graph) -> Dictionary:
-	return { 'custom_node_id': custom_node.id if custom_node else &'' }
+func _to_dict(graph: GraphEdit) -> Dictionary:
+	var result := {
+		"custom_node_id": custom_node.id if custom_node else &"",
+		"link": "END",
+		"size": size,
+	}
+	var connections := graph.get_connections(name)
+	if not connections.is_empty():
+		result["link"] = connections[0]["to_node"]
+	return result
 
 
 func _from_dict(_dict: Dictionary) -> Array[String]:
