@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="TestCustomNode" format=3 uid="uid://bh6d5owswr7iw"]
+[gd_resource type="Resource" script_class="ExampleCustomNode" format=3 uid="uid://bh6d5owswr7iw"]
 
 [ext_resource type="Script" uid="uid://ja5hjt52lxdx" path="res://addons/dialogue_nodes/examples/ExampleCustomNode.gd" id="1_m0qy2"]
 [ext_resource type="PackedScene" uid="uid://d12gkuka24htm" path="res://addons/dialogue_nodes/examples/ExampleCustomNode.tscn" id="1_wd7bu"]

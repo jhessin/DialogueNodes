@@ -6,6 +6,7 @@ var graph: GraphEdit
 var variables: VBoxContainer
 var _debug := false
 var _last_character_signature: Array = []
+var _last_custom_node_signature: Array = []
 
 @onready var file_menu := $Main/ToolBar/FileMenu
 @onready var debug_menu := $Main/ToolBar/DebugMenu
@@ -47,14 +48,19 @@ func _process(_delta: float) -> void:
 
 	var data: DialogueData = metadata['data']
 	var character_list: CharacterList = data.characters
+	var custom_nodes: Array[CustomNode] = data.custom_nodes
 	var new_signature := get_character_signature(character_list)
+	var new_node_signature := get_custom_node_signature(custom_nodes)
 
-	if new_signature == _last_character_signature:
-		return
+	if new_signature != _last_character_signature:
+		_last_character_signature = new_signature
+		graph.refresh_characters(character_list)
+		files.set_modified(files.cur_idx, true)
 
-	_last_character_signature = new_signature
-	graph.refresh_characters(character_list)
-	files.set_modified(files.cur_idx, true)
+	if new_node_signature != _last_custom_node_signature:
+		_last_custom_node_signature = new_node_signature
+		graph.init_add_menu(add_menu.get_popup())
+		files.set_modified(files.cur_idx, true)
 
 
 func run_tree(start_node_idx: int) -> void:
@@ -72,6 +78,23 @@ func run_tree(start_node_idx: int) -> void:
 	dialogue_box.data = data
 	dialogue_box.start(start_node.start_id)
 	dialogue_background.show()
+
+
+func get_custom_node_signature(custom_nodes: Array[CustomNode]) -> Array:
+	var signature: Array = []
+	var metadata: Dictionary = files.get_current_metadata()
+	if metadata.is_empty():
+		return []
+
+	var data: DialogueData = metadata['data']
+	var nodes: Array[CustomNode] = data.custom_nodes
+
+	for node in nodes:
+		if node == null:
+			continue
+		signature.append([node.id, node.scene])
+
+	return signature
 
 
 func get_character_signature(character_list: CharacterList) -> Array:

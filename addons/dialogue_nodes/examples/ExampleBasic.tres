@@ -1,6 +1,17 @@
 [gd_resource type="Resource" script_class="DialogueData" format=3 uid="uid://dj818hys8f3u8"]
 
 [ext_resource type="Script" uid="uid://eit47g61t72a" path="res://addons/dialogue_nodes/objects/DialogueData.gd" id="1"]
+[ext_resource type="Script" uid="uid://7mewhj5kphyy" path="res://addons/dialogue_nodes/nodes/customNode.gd" id="1_bigod"]
+[ext_resource type="Script" uid="uid://ja5hjt52lxdx" path="res://addons/dialogue_nodes/examples/ExampleCustomNode.gd" id="2_lpmxe"]
+[ext_resource type="PackedScene" uid="uid://d12gkuka24htm" path="res://addons/dialogue_nodes/examples/ExampleCustomNode.tscn" id="2_ypq8h"]
+
+[sub_resource type="Resource" id="Resource_05e88"]
+script = ExtResource("2_lpmxe")
+id = &"test_custom_node"
+display_name = "Test Custom Node"
+description = "A simple custom node used to verify the CustomNode system."
+scene = ExtResource("2_ypq8h")
+metadata/_custom_type_script = "uid://ja5hjt52lxdx"
 
 [resource]
 script = ExtResource("1")
@@ -11,7 +22,7 @@ nodes = {
 &"0_1": {
 "link": &"1_1",
 "offset": Vector2(0, 0),
-"size": Vector2(172, 86),
+"size": Vector2(173, 86),
 "start_id": "START"
 },
 &"1_1": {
@@ -33,4 +44,4 @@ nodes = {
 "size": Vector2(200.00002, 100.00003)
 }
 }
-strays = Array[String](["2_1"])
+custom_nodes = Array[ExtResource("1_bigod")]([SubResource("Resource_05e88")])
