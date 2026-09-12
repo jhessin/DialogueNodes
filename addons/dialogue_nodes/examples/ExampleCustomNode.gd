@@ -9,7 +9,7 @@ func _init() -> void:
 	description = "A simple custom node used to verify the CustomNode system."
 
 
-func execute(parser: DialogueParser) -> DialogueResult:
+func execute(context: DialogueData, parser: DialogueParser) -> DialogueResult:
 	print("ExampleCustomNode executed!")
 
-	return DialogueResult.new(DialogueResult.Action.CONTINUE)
+	return DialogueResult.continue_dialogue()

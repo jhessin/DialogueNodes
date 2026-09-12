@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="DialogueData" format=3 uid="uid://bjme2drtas671"]
 
-[ext_resource type="Script" uid="uid://eit47g61t72a" path="res://addons/dialogue_nodes/objects/DialogueData.gd" id="1"]
+[ext_resource type="Script" uid="uid://eit47g61t72a" path="res://addons/dialogue_nodes/objects/dialogue_data.gd" id="1"]
 [ext_resource type="Resource" uid="uid://di21ijmfa2s22" path="res://addons/dialogue_nodes/examples/Characters.tres" id="1_6ekgu"]
 
 [resource]

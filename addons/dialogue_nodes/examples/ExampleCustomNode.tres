@@ -1,10 +1,12 @@
 [gd_resource type="Resource" script_class="ExampleCustomNode" format=3 uid="uid://bh6d5owswr7iw"]
 
 [ext_resource type="Script" uid="uid://ja5hjt52lxdx" path="res://addons/dialogue_nodes/examples/ExampleCustomNode.gd" id="1_m0qy2"]
+[ext_resource type="PackedScene" uid="uid://d12gkuka24htm" path="res://addons/dialogue_nodes/examples/ExampleCustomNode.tscn" id="2_scene"]
 
 [resource]
 script = ExtResource("1_m0qy2")
 id = &"test_custom_node"
 display_name = "Test Custom Node"
 description = "A simple custom node used to verify the CustomNode system"
+scene = ExtResource("2_scene")
 metadata/_custom_type_script = "uid://ja5hjt52lxdx"
