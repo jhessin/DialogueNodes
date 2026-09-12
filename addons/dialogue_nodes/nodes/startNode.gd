@@ -65,7 +65,7 @@ func data_to_tree(graph: Graph, data: DialogueData, node_name := name) -> void:
 
 		if node_data.has('custom_node_id'):
 			var custom_node_id: StringName = node_data['custom_node_id']
-			var custom_node: CustomNode = data.custom_node_dict.get(custom_node_id)
+			var custom_node: CustomNode = data.custom_nodes.get(custom_node_id)
 
 			if custom_node == null or custom_node.scene == null:
 				# The CustomNode no longer exists, so don't recreate this graph node.

@@ -30,7 +30,7 @@ var request_node := ''
 var request_port := -1
 var last_character_list: Array[Character] = []
 var data: DialogueData
-var custom_node_ids: Dictionary[int, StringName] = { }
+var custom_node_scenes: Dictionary[int, PackedScene] = { }
 
 var editor_settings: EditorSettings
 var base_color: Color
@@ -134,7 +134,7 @@ func refresh_characters(character_list: CharacterList) -> void:
 func init_add_menu(add_menu: PopupMenu, dialogue_data: DialogueData = data) -> void:
 	# clear if already existing items
 	add_menu.clear()
-	custom_node_ids.clear()
+	custom_node_scenes.clear()
 
 	# add entries for nodes in the nodes list
 	for i in range(NodeScenes.size()):
@@ -143,22 +143,40 @@ func init_add_menu(add_menu: PopupMenu, dialogue_data: DialogueData = data) -> v
 		scene_instance.queue_free()
 		add_menu.add_item(scene_name, i)
 
-	if dialogue_data.custom_nodes.is_empty():
+	if dialogue_data.custom_node_scenes.is_empty():
 		return
 
 	add_menu.add_separator('Custom Nodes')
 
 	var id: int = CUSTOM_NODE_ID_OFFSET
 
-	for node: CustomNode in dialogue_data.custom_nodes:
-		if node == null or node.scene == null:
+	for scene: PackedScene in dialogue_data.custom_node_scenes:
+		if scene == null:
 			continue
-		var scene_instance := node.scene.instantiate()
-		var scene_name: String = scene_instance.name
-		scene_instance.queue_free()
+		var instance: Node = scene.instantiate()
+		if instance is not CustomGraphNode:
+			push_error(
+				'Custom node scene does not instantiate CustomGraphNode: %s' % scene.resource_path
+			)
+			instance.queue_free()
+			continue
 
-		custom_node_ids[id] = node.id
-		add_menu.add_item(scene_name, id)
+		var custom_node: CustomNode = instance.custom_node
+
+		if custom_node == null:
+			push_error('Custom node scene has no CustomNode assigned: %s' % scene.resource_path)
+			instance.queue_free()
+			continue
+
+		custom_node_scenes[id] = scene
+
+		var menu_name: String = custom_node.display_name
+
+		if menu_name.is_empty():
+			menu_name = instance.name
+
+		add_menu.add_item(menu_name, id)
+		instance.queue_free()
 
 		id += 1
 
@@ -171,12 +189,8 @@ func add_node(id: int, node_name := '', offset := cursor_pos) -> GraphElement:
 	if id < NodeScenes.size():
 		new_node = NodeScenes[id].instantiate()
 	elif id >= CUSTOM_NODE_ID_OFFSET:
-		var custom_id: StringName = custom_node_ids[id]
-		var custom_node := data.custom_node_dict[custom_id]
-		new_node = custom_node.scene.instantiate()
-
-		if new_node is CustomGraphNode:
-			new_node.custom_node = custom_node
+		var custom_scene: PackedScene = custom_node_scenes[id]
+		new_node = custom_scene.instantiate()
 
 	new_node.position_offset = offset
 	new_node.undo_redo = undo_redo

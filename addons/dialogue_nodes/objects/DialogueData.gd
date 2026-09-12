@@ -18,11 +18,53 @@ extends Resource
 ## Contains the characters available to dialogue nodes.
 @export var characters: CharacterList
 ## Contains the custom nodes to be used in this dialogue if any.
-@export var custom_nodes: Array[CustomNode] = []
+@export var custom_node_scenes: Array[PackedScene] = []
 
-var custom_node_dict: Dictionary[StringName, CustomNode]:
+var custom_nodes: Dictionary[StringName, CustomNode]:
 	get:
 		var result: Dictionary[StringName, CustomNode] = { }
-		for node in custom_nodes:
-			result[node.id] = node
+
+		for scene: PackedScene in custom_node_scenes:
+			if scene == null:
+				continue
+
+			var instance: Node = scene.instantiate()
+
+			if instance is not CustomGraphNode:
+				instance.queue_free()
+				continue
+
+			var custom_graph_node: CustomGraphNode = instance
+
+			if custom_graph_node.custom_node == null:
+				instance.queue_free()
+				continue
+
+			result[custom_graph_node.custom_node.id] = custom_graph_node.custom_node
+			instance.queue_free()
+
+		return result
+
+var scene_dict: Dictionary[StringName, PackedScene]:
+	get:
+		var result: Dictionary[StringName, PackedScene] = { }
+
+		for scene: PackedScene in custom_node_scenes:
+			if scene == null:
+				continue
+
+			var instance: Node = scene.instantiate()
+
+			if instance is not CustomGraphNode:
+				instance.queue_free()
+				continue
+
+			var custom_node: CustomNode = instance.custom_node
+
+			if custom_node == null:
+				instance.queue_free()
+				continue
+
+			result[custom_node.id] = scene
+
 		return result

@@ -2,13 +2,14 @@
 class_name CustomNode
 extends Resource
 
-## The id of the node
+## The id of the node.
 @export var id: StringName = &''
-@export var display_name: String = ''
-@export var description: String = ''
 
-## The scene that represents the node in the Graph
-@export var scene: PackedScene
+## The name displayed in the Add Node menu.
+@export var display_name: String = ''
+
+## Description of what the node does.
+@export_multiline var description: String = ''
 
 
 ## This is the processor that runs when the node is executed.
