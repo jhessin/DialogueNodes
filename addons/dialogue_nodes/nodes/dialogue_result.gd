@@ -28,6 +28,6 @@ static func jump_to(name: StringName) -> DialogueResult:
 	return DialogueResult.new(Action.JUMP, name)
 
 
-func _init(_action: Action, _target: StringName = &'') -> void:
+func _init(_action: Action, _target: StringName = &"") -> void:
 	action = _action
 	target = _target
