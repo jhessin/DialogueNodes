@@ -1,4 +1,5 @@
 ## Data for processing dialogue through a [param DialogueParser].
+@tool
 @icon('res://addons/dialogue_nodes/icons/Dialogue.svg')
 class_name DialogueData
 extends Resource
@@ -25,3 +26,11 @@ var custom_node_dict: Dictionary[StringName, CustomNode]:
 		for node in custom_nodes:
 			result[node.id] = node
 		return result
+
+
+func enumerate_custom_nodes() -> Array[CustomNode]:
+	var i := 0
+	for value: CustomNode in custom_nodes:
+		value.menu_index = CustomNode.CUSTOM_NODE_ID_OFFSET + i
+		i += 1
+	return custom_nodes

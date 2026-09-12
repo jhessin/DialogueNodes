@@ -5,7 +5,6 @@ var undo_redo: EditorUndoRedoManager
 var graph: GraphEdit
 var variables: VBoxContainer
 var _debug := false
-var _add_menu_initialized := false
 var _last_character_signature: Array = []
 
 @onready var file_menu := $Main/ToolBar/FileMenu
@@ -151,9 +150,7 @@ func _on_files_changed() -> void:
 	graph.run_requested.connect(run_tree)
 	variables = new_metadata['variables']
 
-	if not _add_menu_initialized and is_instance_valid(graph):
-		graph.init_add_menu(add_menu.get_popup())
-		_add_menu_initialized = true
+	graph.init_add_menu(add_menu.get_popup())
 
 
 func _on_files_toggle_button_pressed() -> void:

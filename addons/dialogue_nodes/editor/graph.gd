@@ -27,6 +27,7 @@ var selected_nodes := []
 var request_node := ''
 var request_port := -1
 var last_character_list: Array[Character] = []
+var data: DialogueData
 
 var editor_settings: EditorSettings
 var base_color: Color
@@ -54,7 +55,9 @@ func _input(_event) -> void:
 
 
 func get_data() -> DialogueData:
-	var data := DialogueData.new()
+	# Ensure we have a valid DialogueData
+	if data == null:
+		data = DialogueData.new()
 
 	# get start nodes and their trees
 	for start in starts:
@@ -136,12 +139,28 @@ func init_add_menu(add_menu: PopupMenu) -> void:
 		scene_instance.queue_free()
 		add_menu.add_item(scene_name, i)
 
+	if not data.custom_nodes.is_empty():
+		add_menu.add_separator('Custom Nodes')
+
+	for node: CustomNode in data.enumerate_custom_nodes():
+		var scene_instance := node.scene.instantiate()
+		var scene_name: String = scene_instance.name
+		scene_instance.queue_free()
+
+		var i = node.menu_index
+		add_menu.add_item(scene_name, i)
+
 
 func add_node(id: int, node_name := '', offset := cursor_pos) -> GraphElement:
 	deselect_all_nodes()
 
 	# create new node
-	var new_node := NodeScenes[id].instantiate()
+	var new_node: GraphNode
+	if id < NodeScenes.size():
+		new_node = NodeScenes[id].instantiate()
+	elif id >= CustomNode.CUSTOM_NODE_ID_OFFSET:
+		new_node = data.custom_nodes[id - CustomNode.CUSTOM_NODE_ID_OFFSET].scene.instantiate()
+
 	new_node.position_offset = offset
 	new_node.undo_redo = undo_redo
 	new_node.selected = true

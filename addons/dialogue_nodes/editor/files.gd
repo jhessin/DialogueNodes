@@ -50,6 +50,7 @@ func create_entry(file_name: String, path: String, data: DialogueData) -> void:
 
 		# create graph node for this file
 		var graph := GraphScene.instantiate()
+		graph.data = data
 		add_child(graph)
 		graph.undo_redo = editor.undo_redo
 		graph.modified.connect(_on_data_modified)

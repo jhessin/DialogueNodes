@@ -1,4 +1,5 @@
-class_name TestCustomNode
+@tool
+class_name ExampleCustomNode
 extends CustomNode
 
 
@@ -9,6 +10,6 @@ func _init() -> void:
 
 
 func execute(parser: DialogueParser) -> DialogueResult:
-	print("TestCustomNode executed!")
+	print("ExampleCustomNode executed!")
 
 	return DialogueResult.new(DialogueResult.Action.CONTINUE)

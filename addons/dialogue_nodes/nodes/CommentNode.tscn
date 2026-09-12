@@ -1,8 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://h3hkys0mgvji"]
+[gd_scene format=3 uid="uid://h3hkys0mgvji"]
 
-[ext_resource type="Script" path="res://addons/dialogue_nodes/nodes/commentNode.gd" id="1"]
+[ext_resource type="Script" uid="uid://b6icqaop88res" path="res://addons/dialogue_nodes/nodes/commentNode.gd" id="1"]
 
-[node name="CommentNode" type="GraphNode"]
+[node name="CommentNode" type="GraphNode" unique_id=126571247]
 custom_minimum_size = Vector2(200, 100)
 offset_right = 200.0
 offset_bottom = 100.0
@@ -19,15 +19,15 @@ slot/0/right_icon = null
 slot/0/draw_stylebox = true
 script = ExtResource("1")
 
-[node name="TextEdit" type="TextEdit" parent="."]
+[node name="TextEdit" type="TextEdit" parent="." unique_id=936794566]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="ResizeTimer" type="Timer" parent="."]
+[node name="ResizeTimer" type="Timer" parent="." unique_id=1768994703]
 wait_time = 0.5
 one_shot = true
 
-[node name="TextTimer" type="Timer" parent="."]
+[node name="TextTimer" type="Timer" parent="." unique_id=2118759728]
 wait_time = 0.5
 one_shot = true
 

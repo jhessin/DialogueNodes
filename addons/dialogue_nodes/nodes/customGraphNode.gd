@@ -1,9 +1,14 @@
 @tool
+class_name CustomGraphNode
 extends GraphNode
 
 signal modified
 
 @export var custom_node: CustomNode
+
+var undo_redo: EditorUndoRedoManager
+var last_size := size
+var last_text := ''
 
 
 func _to_dict(_graph) -> Dictionary:
