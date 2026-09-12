@@ -61,26 +61,23 @@ func data_to_tree(graph: Graph, data: DialogueData, node_name := name) -> void:
 		return
 	elif not graph.has_node(NodePath(node_name)):
 		var node_data: Dictionary = data.nodes[node_name]
-		var offset: Vector2 = data.nodes[node_name]['offset']
+		var offset: Vector2 = node_data['offset']
 
 		if node_data.has('custom_node_id'):
 			var custom_node_id: StringName = node_data['custom_node_id']
-			var custom_node: CustomNode = data.custom_nodes.get(custom_node_id)
+			var custom_scene: PackedScene = data.scene_dict[custom_node_id]
 
-			if custom_node == null or custom_node.scene == null:
+			if custom_scene == null:
 				# The CustomNode no longer exists, so don't recreate this graph node.
 				return
 
-			var node: GraphElement = graph.add_custom_node(custom_node, node_name, offset)
-
-			if node is CustomGraphNode:
-				node.custom_node = custom_node
+			var node: GraphElement = graph.add_custom_node(custom_scene, node_name, offset)
 
 			next_nodes = node._from_dict(node_data)
 		else:
 			var type: int = int(node_name.split('_')[0])
 			var node: GraphElement = graph.add_node(type, node_name, offset)
-			next_nodes = node._from_dict(data.nodes[node_name])
+			next_nodes = node._from_dict(node_data)
 	elif graph.has_node(NodePath(node_name)) and graph.request_port > -1:
 		graph.connect_node(graph.request_node, graph.request_port, node_name, 0)
 

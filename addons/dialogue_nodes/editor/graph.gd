@@ -31,28 +31,6 @@ var request_port := -1
 var last_character_list: Array[Character] = []
 var data: DialogueData
 var custom_node_scenes: Dictionary[int, PackedScene] = { }
-var custom_node_scenes_by_id: Dictionary[StringName, PackedScene] = { }:
-	get:
-		var result: Dictionary[StringName, PackedScene]
-		for scene: PackedScene in custom_node_scenes.values():
-			if scene == null:
-				continue
-
-			var instance: Node = scene.instantiate()
-
-			if instance is not CustomGraphNode:
-				instance.queue_free()
-				continue
-
-			var custom_node: CustomNode = instance.custom_node
-
-			if custom_node == null:
-				instance.queue_free()
-				continue
-
-			result[custom_node.id] = scene
-
-		return result
 
 var editor_settings: EditorSettings
 var base_color: Color
@@ -382,20 +360,21 @@ func update_slots_color(nodes: Array = get_children()) -> void:
 
 
 func add_custom_node(
-	custom_node: CustomNode,
+	scene: PackedScene,
 	node_name: String = '',
 	offset: Vector2 = cursor_pos,
 ) -> GraphElement:
 	deselect_all_nodes()
 
-	var new_node: GraphElement = custom_node.scene.instantiate()
+	var new_node: GraphElement = scene.instantiate()
 
 	new_node.position_offset = offset
 	new_node.undo_redo = undo_redo
 	new_node.selected = true
 	selected_nodes.append(new_node)
 
-	new_node.name = node_name if node_name != '' else custom_node.id
+	new_node.name = node_name
+
 	add_child(new_node, true)
 
 	if new_node.name.contains('_'):
