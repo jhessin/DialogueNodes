@@ -36,6 +36,9 @@ func _enter_tree() -> void:
 	# add editor to main viewport
 	get_editor_interface().get_editor_main_screen().add_child(editor)
 
+	# listen to inspector changes
+	get_editor_interface().get_inspector().property_edited.connect(_on_inspector_property_edited)
+
 	# get undo redo manager
 	editor.undo_redo = get_undo_redo()
 
@@ -49,6 +52,13 @@ func _enter_tree() -> void:
 
 
 func _exit_tree() -> void:
+	# disconnect signals
+	if get_editor_interface().get_inspector().property_edited.is_connected(
+		_on_inspector_property_edited
+	):
+		get_editor_interface().get_inspector().property_edited.disconnect(
+			_on_inspector_property_edited
+		)
 	# remove from main viewport
 	if is_instance_valid(editor):
 		editor.queue_free()
@@ -95,3 +105,14 @@ func _edit(object) -> void:
 func _save_external_data() -> void:
 	if is_instance_valid(editor):
 		editor.files.save_all()
+
+
+func _on_inspector_property_edited(property: StringName) -> void:
+	print_debug('Inspector Property edited:', property)
+	if property != &"custom_nodes":
+		return
+
+	if not is_instance_valid(editor):
+		return
+
+	editor.call_deferred('custom_nodes_changed')

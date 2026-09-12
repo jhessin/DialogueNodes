@@ -110,6 +110,23 @@ func get_character_signature(character_list: CharacterList) -> Array:
 	return signature
 
 
+func custom_nodes_changed() -> void:
+	if not is_instance_valid(graph):
+		return
+
+	var metadata: Dictionary = files.get_current_metadata()
+	if metadata.is_empty():
+		return
+
+	print_debug('metadata and graph exist!')
+
+	var data: DialogueData = metadata["data"]
+
+	graph.data = data
+	graph.init_add_menu(add_menu.get_popup())
+	files.set_modified(files.cur_idx, true)
+
+
 func _on_debug_menu_pressed(idx: int) -> void:
 	var popup: PopupMenu = debug_menu.get_popup()
 	match (idx):
